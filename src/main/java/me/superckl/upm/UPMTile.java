@@ -1,5 +1,7 @@
 package me.superckl.upm;
 
+import java.util.function.Supplier;
+
 import lombok.Getter;
 import me.superckl.upm.screen.UPMScreen;
 import me.superckl.upm.screen.UPMScreenModeType;
@@ -23,6 +25,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	private int scanDelay = 0;
 	@Getter
 	private EnergyNetwork network;
+	private Supplier<EnergyNetwork> networkSupplier;
 
 	public UPMTile() {
 		super(ModRegisters.UPM_TILE_TYPE.get());
@@ -30,6 +33,15 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	@Override
 	public void tick() {
+		/*
+		 * Check for a pending EnergyNetwork deserialization.
+		 * We can't deserialize networks on initial world load because
+		 * it requires accessing other TileEntities
+		 */
+		if(this.networkSupplier != null) {
+			this.network = this.networkSupplier.get();
+			this.networkSupplier = null;
+		}
 		if(this.level.isClientSide)
 			return;
 		if(this.scanDelay > 0)
@@ -113,8 +125,16 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		final CompoundNBT data = nbt.getCompound(UPM.MOD_ID);
 		this.scanDelay = data.getInt(UPMTile.DELAY_KEY);
 		if(data.contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
-			this.network = new EnergyNetwork(this);
-			this.network.deserializeNBT(data.getCompound(UPMTile.NETWORK_KEY));
+			final CompoundNBT networkNBT = data.getCompound(UPMTile.NETWORK_KEY);
+			final Supplier<EnergyNetwork> supplier = () -> {
+				final EnergyNetwork network = new EnergyNetwork(this);
+				network.deserializeNBT(networkNBT);
+				return network;
+			};
+			if(this.level == null)
+				this.networkSupplier = supplier;
+			else
+				this.network = supplier.get();
 		}
 		super.load(state, nbt);
 	}
