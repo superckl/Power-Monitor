@@ -1,0 +1,6 @@
+{
+  "gui.upm.name": "Universal Power Monitor",
+  "gui.upm.scan": "Scan Network",
+  "gui.upm.no_network": "No stored network:",
+  "block.upm.upm": "Universal Power Monitor"
+}
