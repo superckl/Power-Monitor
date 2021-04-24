@@ -178,12 +178,12 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 		@Override
 		public boolean canExtract() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean canReceive() {
-			return false;
+			return true;
 		}
 
 	}

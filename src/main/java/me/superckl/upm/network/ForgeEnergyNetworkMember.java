@@ -49,6 +49,16 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 	}
 
 	@Override
+	public boolean canExtract() {
+		return this.storage.get().canExtract();
+	}
+
+	@Override
+	public boolean canInsert() {
+		return this.storage.get().canReceive();
+	}
+
+	@Override
 	public boolean isSameStorage(final NetworkMember member) {
 		return member instanceof ForgeEnergyNetworkMember &&
 				this.storage.get() == ((ForgeEnergyNetworkMember)member).storage.get();
@@ -57,8 +67,8 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 	public static class Resolver extends NetworkMemberResolver<ForgeEnergyNetworkMember>{
 
 		@Override
-		public Optional<ForgeEnergyNetworkMember> getNetworkMember(final TileEntity tile) {
-			return tile.getCapability(CapabilityEnergy.ENERGY).map(ForgeEnergyNetworkMember::new);
+		public Optional<ForgeEnergyNetworkMember> getNetworkMember(final TileEntity tile, final Direction side) {
+			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(ForgeEnergyNetworkMember::new);
 		}
 
 	}

@@ -20,8 +20,10 @@ public class ModRegisters {
 	public static final DeferredRegister<TileEntityType<?>> TILE_REGISTER = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, UPM.MOD_ID);
 	public static final DeferredRegister<Block> BLOCK_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCKS, UPM.MOD_ID);
 	public static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, UPM.MOD_ID);
-	@SuppressWarnings("unchecked")
-	public static final DeferredRegister<NetworkMemberResolver<?>> RESOLVER_REGISTER = DeferredRegister.create(NetworkMemberResolver.class, UPM.MOD_ID);
+
+	//We have to proxy through the raw type Class to let the wildcard be inferred (NetworkMemberResolver.class does not have the wildcard generic)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static final DeferredRegister<NetworkMemberResolver<?>> RESOLVER_REGISTER = DeferredRegister.create((Class) NetworkMemberResolver.class, UPM.MOD_ID);
 
 	public static final Supplier<IForgeRegistry<NetworkMemberResolver<?>>> RESOLVER_REGISTRY = ModRegisters.RESOLVER_REGISTER.makeRegistry("network_member", RegistryBuilder::new);
 
