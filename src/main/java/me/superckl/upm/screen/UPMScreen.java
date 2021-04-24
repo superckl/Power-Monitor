@@ -1,5 +1,7 @@
 package me.superckl.upm.screen;
 
+import java.util.List;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.UPM;
@@ -12,6 +14,7 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
@@ -45,8 +48,21 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 			this.minecraft.setScreen(UPMScreen.from(tile));
 	}
 
+	@Override
+	public void render(final MatrixStack stack, final int mouseX, final int mouseY, final float partial) {
+		super.render(stack, mouseX, mouseY, partial);
+		this.renderTooltip(stack, mouseX, mouseY);
+	}
+
 	public FontRenderer getFont() {
 		return this.font;
+	}
+
+	@Override
+	public void renderWrappedToolTip(final MatrixStack matrixStack, List<? extends ITextProperties> tooltips, final int mouseX,
+			final int mouseY, final FontRenderer font) {
+		tooltips = this.mode.modifyTooltip(this.hoveredSlot, tooltips);
+		super.renderWrappedToolTip(matrixStack, tooltips, mouseX, mouseY, font);
 	}
 
 	@Override

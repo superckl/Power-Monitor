@@ -2,9 +2,11 @@ package me.superckl.upm.screen;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.UPM;
+import me.superckl.upm.network.MemberType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
@@ -12,6 +14,8 @@ import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 
 public class NetworkMode extends UPMScreenMode{
 
@@ -43,6 +47,13 @@ public class NetworkMode extends UPMScreenMode{
 
 	@Override
 	public void slotClicked(final Slot slot, final int mouseX, final int mouseY, final ClickType type) {
+	}
+
+	@Override
+	public List<ITextProperties> modifyTooltip(final Slot slot, final List<? extends ITextProperties> tooltip) {
+		final List<ITextProperties> props = Lists.newArrayList(tooltip);
+		props.add(new StringTextComponent(MemberType.CABLE.name()));
+		return props;
 	}
 
 	@Override
