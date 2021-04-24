@@ -35,6 +35,7 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 		final Set<BlockPos> visited = Sets.newHashSet();
 		while(!toCheck.isEmpty()) {
 			final List<TileEntity> neighbors = this.neighbors(toCheck.get(0).getBlockPos(), Direction.values(), visited);
+			neighbors.removeIf(te -> te instanceof UPMTile);
 			neighbors.forEach(te ->
 			NetworkMember.from(te).ifPresent(member -> {
 				members.put(member, te.getBlockPos());
