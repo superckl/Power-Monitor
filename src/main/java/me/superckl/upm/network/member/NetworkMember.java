@@ -47,8 +47,8 @@ public abstract class NetworkMember{
 		return this;
 	}
 
-	public boolean connects(final NetworkMember adjacent, final Direction side) {
-		return this.getType().connects();
+	public boolean connects(final NetworkMember adjacent, final Direction side, final Optional<MemberType> overrideType, final Optional<MemberType> adjacentOverrideType) {
+		return overrideType.orElseGet(this::getType).connects();
 	}
 
 	public abstract boolean canExtract();

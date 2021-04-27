@@ -27,9 +27,9 @@ public class NoNetworkMode extends UPMScreenMode{
 	public void init() {
 		final int width = 100;
 		final int height = 20;
-		this.scanButton = new Button(this.screen.getGuiLeft()+(this.getWidth()-width)/2, 15+this.screen.getGuiTop()+(this.getHeight()-height)/2, width, height,
-				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "scan"))), this::onScanButtonPress);
-		this.scanButton.active = this.screen.getMenu().getNetwork().getOwner().canScan();
+		this.scanButton = this.screen.newScanButton(this.screen.getGuiLeft()+(this.getWidth()-width)/2, 15+this.screen.getGuiTop()+(this.getHeight()-height)/2, width, height,
+				false, this::onScanButtonPress);
+		this.scanButton.active = this.getUPM().canScan();
 		this.screen.addButton(this.scanButton);
 	}
 
@@ -51,7 +51,7 @@ public class NoNetworkMode extends UPMScreenMode{
 	}
 
 	public void onScanButtonPress(final Button button) {
-		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.screen.getMenu().getUPMPosition(), new IdentityHashMap<>()));
+		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.getUPM().getBlockPos(), new IdentityHashMap<>()));
 	}
 
 	@Override

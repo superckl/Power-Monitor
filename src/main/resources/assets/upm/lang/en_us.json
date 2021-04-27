@@ -9,5 +9,7 @@
   "gui.upm.cable_energy": "Cable:",
   "gui.upm.machine_energy": "Machine:",
   "gui.upm.generator_energy": "Generator:",
+  "gui.upm.scan_delay": "Please wait for scan cooldown...",
+  "gui.upm.config_changed": "Config changed: rescan to save changes",
   "block.upm.upm": "Universal Power Monitor"
 }

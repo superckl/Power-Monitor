@@ -53,12 +53,16 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		UPMTile.LOADED_TILES.add(this);
+		if(!this.level.isClientSide)
+			UPMTile.LOADED_TILES.add(this);
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void setRemoved() {
 		UPMTile.LOADED_TILES.remove(this);
+		if(this.level.isClientSide && ClientHelper.getMinecraft().screen instanceof UPMScreen)
+			((UPMScreen)ClientHelper.getMinecraft().screen).onUPMRemoved(this);
 		super.setRemoved();
 	}
 
@@ -131,7 +135,6 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	}
 
 	public void setTypeOverrides(final Map<TileEntityType<?>, MemberType> overrides) {
-		this.typeOverrides.clear();
 		this.typeOverrides.putAll(overrides);
 	}
 

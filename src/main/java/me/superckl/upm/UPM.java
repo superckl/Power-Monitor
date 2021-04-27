@@ -2,11 +2,13 @@ package me.superckl.upm;
 
 import org.apache.logging.log4j.LogManager;
 
+import me.superckl.upm.network.BlockChangeListener;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UPMScanStatePacket;
 import me.superckl.upm.packet.UpdateEnergyPacket;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -30,6 +32,7 @@ public class UPM {
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent e) {
+		e.enqueueWork(() -> MinecraftForge.EVENT_BUS.register(new BlockChangeListener()));
 		int pIndex = 0;
 		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, OpenUPMScreenPacket.class, OpenUPMScreenPacket::encode,
 				OpenUPMScreenPacket::decode, OpenUPMScreenPacket::handle);

@@ -15,6 +15,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import me.superckl.upm.UPM;
 import me.superckl.upm.network.EnergyNetwork;
 import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.network.member.WrappedNetworkMember;
 import me.superckl.upm.network.member.stack.NetworkItemStackHelper;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
@@ -50,6 +51,11 @@ public class NetworkMode extends UPMScreenMode{
 
 	public static final String CONNECTED_BLOCKS_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "connected_blocks"));
 
+	public static final String CONFIG_CHANGED_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "config_changed"));
+
+	private final UnlimitedInventory inv = new UnlimitedInventory(9*3);
+	private Multimap<MemberType, NetworkItemStackHelper> typeToHelpers;
+
 	private Button scanButton;
 
 	private int numBlocks;
@@ -58,11 +64,10 @@ public class NetworkMode extends UPMScreenMode{
 	public void init() {
 		final int width = 60;
 		final int height = 20;
-		this.scanButton = new Button(this.screen.getGuiLeft()+this.getWidth()-width-7, this.screen.getGuiTop()+123-24, width, height,
-				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "rescan"))), this::onScanButtonPress);
-		this.scanButton.active = this.screen.getMenu().getNetwork().getOwner().canScan();
+		this.scanButton = this.screen.newScanButton(this.screen.getGuiLeft()+this.getWidth()-width-7, this.screen.getGuiTop()+123-24, width, height,
+				true, this::onScanButtonPress);
+		this.scanButton.active = this.getUPM().canScan();
 		this.screen.addButton(this.scanButton);
-
 	}
 
 	@Override
@@ -70,53 +75,71 @@ public class NetworkMode extends UPMScreenMode{
 		this.scanButton.active = state;
 	}
 
+	@Override
+	public boolean networkChanged(final UPMScreenModeType type) {
+		if(type != this.getType())
+			return true;
+		this.typeToHelpers = this.consolidateToItems(this.getNetwork());
+		final List<NetworkItemStackHelper> helpers = this.updateInventory();
+		for (final Slot slot:this.screen.getMenu().slots)
+			if(slot instanceof NetworkBlockSlot) {
+				final NetworkItemStackHelper helper = slot.getSlotIndex() < helpers.size() ? helpers.get(slot.getSlotIndex()):null;
+				((NetworkBlockSlot)slot).setMember(helper);
+			}
+		return false;
+	}
+
 	public void onScanButtonPress(final Button button) {
 		final Map<TileEntityType<?>, MemberType> typeOverrides = new IdentityHashMap<>();
-		if(this.hasTypeOverride())
-			this.screen.getMenu().slots.forEach(slot -> {
-				if(slot instanceof NetworkBlockSlot) {
-					final NetworkBlockSlot nSlot = (NetworkBlockSlot) slot;
-					if(nSlot.member != null && nSlot.member.hasTypeOverride())
-						nSlot.member.getMembers().forEach(wrapped -> {
-							wrapped.getTileTypes().forEach(type -> typeOverrides.put(type, wrapped.getType()));
-						});
-				}
-			});
-		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.screen.getMenu().getUPMPosition(), typeOverrides));
+		this.screen.getMenu().slots.forEach(slot -> {
+			if(slot instanceof NetworkBlockSlot) {
+				final NetworkBlockSlot nSlot = (NetworkBlockSlot) slot;
+				if(nSlot.isTypeChanged())
+					nSlot.member.getMembers().forEach(wrapped -> {
+						wrapped.getTileTypes().forEach(type -> typeOverrides.put(type, nSlot.getType()));
+					});
+			}
+		});
+		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.getUPM().getBlockPos(), typeOverrides));
 	}
 
 	@Override
 	public void initSlots(final UPMClientSideContainer container) {
-		int numBlocks = 0;
-		final Inventory inv = new UnlimitedInventory(9*3);
-		final Multimap<MemberType, NetworkItemStackHelper> networkItems = this.consolidateToItems(container.getNetwork());
-		final List<NetworkItemStackHelper> helpers = new ArrayList<>(Math.min(networkItems.size(), 9*3));
-		if(!networkItems.isEmpty()) {
-			int invIndex = 0;
+		this.typeToHelpers = this.consolidateToItems(this.getNetwork());
+		if(!this.typeToHelpers.isEmpty()) {
+			final List<NetworkItemStackHelper> helpers = this.updateInventory();
 			final int startX = 9;
 			final int startY = 123;
-			for(final MemberType type:MemberType.values())
-				if(invIndex < inv.getContainerSize())
-					for(final NetworkItemStackHelper member:networkItems.get(type)) {
-						if(invIndex >= inv.getContainerSize())
-							break;
-						final ItemStack stack = member.toStack();
-						inv.setItem(invIndex++, stack);
-						numBlocks += stack.getCount();
-						helpers.add(member);
-					}
-			this.numBlocks = numBlocks;
 			for (int i = 0; i < 9; i++)
 				for (int j = 0; j < 3; j++) {
 					final int index = j*9+i;
 					final NetworkItemStackHelper member = index < helpers.size() ? helpers.get(index):null;
-					container.addSlot(new NetworkBlockSlot(inv, index, startX+i*18, startY+j*18, member));
+					container.addSlot(new NetworkBlockSlot(this.inv, index, startX+i*18, startY+j*18, member));
 				}
 		}
 	}
 
+	public List<NetworkItemStackHelper> updateInventory() {
+		this.inv.clearContent();
+		this.numBlocks = 0;
+		final List<NetworkItemStackHelper> helpers = new ArrayList<>(Math.min(this.typeToHelpers.size(), 9*3));
+		if(!this.typeToHelpers.isEmpty()) {
+			int invIndex = 0;
+			for(final MemberType type:MemberType.values())
+				if(invIndex < this.inv.getContainerSize())
+					for(final NetworkItemStackHelper member:this.typeToHelpers.get(type)) {
+						if(invIndex >= this.inv.getContainerSize())
+							break;
+						final ItemStack stack = member.toStack();
+						this.inv.setItem(invIndex++, stack);
+						this.numBlocks += stack.getCount();
+						helpers.add(member);
+					}
+		}
+		return helpers;
+	}
+
 	private Multimap<MemberType, NetworkItemStackHelper> consolidateToItems(final EnergyNetwork network) {
-		//TODO need to map type to blocks for proper consolidation, but also attach network members to blocks. Use Multimap<Block, WrappedNetworkMember> as value, type as key??
 		final Multimap<MemberType, NetworkItemStackHelper> type2Helpers = MultimapBuilder.enumKeys(MemberType.class).arrayListValues().build();
 		network.getMembers().forEach(member -> {
 			final Collection<NetworkItemStackHelper> helpers = type2Helpers.get(member.getType());
@@ -141,26 +164,28 @@ public class NetworkMode extends UPMScreenMode{
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+65, 0, 195, 80, 12);
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+80, 0, 195, 80, 12);
 
-		final EnergyNetwork network = this.screen.getMenu().getNetwork();
+		this.screen.blit(stack, this.screen.getGuiLeft()+175, this.screen.getGuiTop()+123, this.needsScrollBars() ? 195:207, 0, 12, 15);
+		
+		final EnergyNetwork network = this.getNetwork();
 
 		long storage = network.getTotalStorage();
-		double percentage = storage == 0 ? 1:(double)network.getTotalStored()/storage;
+		double percentage = storage == 0 ? 0:(double)network.getTotalStored()/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+20, 0, 183, (int) Math.round(80*percentage), 12);
 
 		storage = network.getStorage(MemberType.STORAGE);
-		percentage = storage == 0 ? 1:(double)network.getStored(MemberType.STORAGE)/storage;
+		percentage = storage == 0 ? 0:(double)network.getStored(MemberType.STORAGE)/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+35, 0, 183, (int) Math.round(80*percentage), 12);
 
 		storage = network.getStorage(MemberType.CABLE);
-		percentage = storage == 0 ? 1:(double)network.getStored(MemberType.CABLE)/storage;
+		percentage = storage == 0 ? 0:(double)network.getStored(MemberType.CABLE)/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+50, 0, 183, (int) Math.round(80*percentage), 12);
 
 		storage = network.getStorage(MemberType.MACHINE);
-		percentage = storage == 0 ? 1:(double)network.getStored(MemberType.MACHINE)/storage;
+		percentage = storage == 0 ? 0:(double)network.getStored(MemberType.MACHINE)/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+65, 0, 183, (int) Math.round(80*percentage), 12);
 
 		storage = network.getStorage(MemberType.GENERATOR);
-		percentage = storage == 0 ? 1:(double)network.getStored(MemberType.GENERATOR)/storage;
+		percentage = storage == 0 ? 0:(double)network.getStored(MemberType.GENERATOR)/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+80, 0, 183, (int) Math.round(80*percentage), 12);
 	}
 
@@ -186,8 +211,15 @@ public class NetworkMode extends UPMScreenMode{
 		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_CABLE_ID), 14, 51.5F, black);
 		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_MACHINE_ID), 14, 66.5F, black);
 		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_GENERATOR_ID), 14, 81.5F, black);
+
+		if(this.hasTypeOverride())
+			font.draw(stack, new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID).withStyle(TextFormatting.RED), 8, 100, black);
 	}
 
+	private boolean needsScrollBars() {
+		return this.typeToHelpers != null && this.typeToHelpers.size() > this.inv.getContainerSize();
+	}
+	
 	private List<ITextComponent> tooltipForBarHover(final int mouseX, final int mouseY){
 		if(mouseX >= this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8 && mouseX < this.screen.getGuiLeft()+NetworkMode.WIDTH-8) {
 			boolean isTotal = false;
@@ -201,12 +233,14 @@ public class NetworkMode extends UPMScreenMode{
 				type = MemberType.CABLE;
 			else if(mouseY >= this.screen.getGuiTop()+65 && mouseY < this.screen.getGuiTop()+77)
 				type = MemberType.MACHINE;
+			else if(mouseY >= this.screen.getGuiTop()+80 && mouseY < this.screen.getGuiTop()+92)
+				type = MemberType.GENERATOR;
 
 			if(isTotal || type != null) {
 				long stored;
 				long storage;
 				long gain;
-				final EnergyNetwork network = this.screen.getMenu().getNetwork();
+				final EnergyNetwork network = this.getNetwork();
 				if(isTotal) {
 					stored = network.getTotalStored();
 					storage = network.getTotalStorage();
@@ -261,7 +295,7 @@ public class NetworkMode extends UPMScreenMode{
 
 	public boolean hasTypeOverride() {
 		for(final Slot slot:this.screen.getMenu().slots)
-			if(slot instanceof NetworkBlockSlot && ((NetworkBlockSlot)slot).member.hasTypeOverride())
+			if(slot instanceof NetworkBlockSlot && ((NetworkBlockSlot)slot).isTypeChanged())
 				return true;
 		return false;
 	}
@@ -283,11 +317,12 @@ public class NetworkMode extends UPMScreenMode{
 
 	public static class NetworkBlockSlot extends Slot{
 
-		private final NetworkItemStackHelper member;
+		private NetworkItemStackHelper member;
+		private MemberType type;
 
 		public NetworkBlockSlot(final IInventory inv, final int slot, final int x, final int y, final NetworkItemStackHelper member) {
 			super(inv, slot, x, y);
-			this.member = member;
+			this.setMember(member);
 		}
 
 		@Override
@@ -301,13 +336,24 @@ public class NetworkMode extends UPMScreenMode{
 		}
 
 		public MemberType getType() {
-			return this.member.getType();
+			return this.type;
 		}
 
 		public void cycleType() {
-			if(this.member == null)
-				return;
-			this.member.setType(this.getType().cycle());
+			this.type = this.type.cycle();
+		}
+
+		public boolean isTypeChanged() {
+			return this.member != null && this.type != this.member.getType();
+		}
+
+		public Collection<WrappedNetworkMember> getMembers(){
+			return this.member == null ? Collections.emptyList():this.member.getMembers();
+		}
+
+		public void setMember(final NetworkItemStackHelper member) {
+			this.member = member;
+			this.type = this.member == null ? MemberType.UNKNOWN:this.member.getType();
 		}
 
 	}

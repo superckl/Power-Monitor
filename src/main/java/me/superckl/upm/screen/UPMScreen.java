@@ -2,16 +2,20 @@ package me.superckl.upm.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import me.superckl.upm.ClientHelper;
 import me.superckl.upm.UPM;
 import me.superckl.upm.UPMTile;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.widget.button.Button.IPressable;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
@@ -45,7 +49,7 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 	}
 
 	public void onNetworkChanged(final UPMTile tile) {
-		if(this.menu.getUPMPosition().equals(tile.getBlockPos()) && this.mode.shouldReopen(tile.getScreenType()))
+		if(this.menu.getOwner() == tile && this.mode.networkChanged(tile.getScreenType()))
 			this.minecraft.setScreen(UPMScreen.from(tile));
 	}
 
@@ -94,10 +98,23 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 		this.mode.slotClicked(slot, mouseX, mouseY, type);
 	}
 
+	public void onUPMRemoved(final UPMTile tile) {
+		if(this.menu.getOwner() == tile)
+			ClientHelper.getMinecraft().setScreen(null);
+	}
+
 	public static UPMScreen from(final UPMTile tile) {
 		final UPMScreenMode mode = tile.getScreenType().buildMode();
-		final UPMClientSideContainer container = new UPMClientSideContainer(tile.getNetwork(), tile.getBlockPos());
+		final UPMClientSideContainer container = new UPMClientSideContainer(tile);
 		return new UPMScreen(container, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode);
+	}
+
+	public Button newScanButton(final int x, final int y, final int width, final int height, final boolean rescan, final IPressable onPress) {
+		return new Button(x, y, width, height, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, rescan ? "rescan":"scan"))),
+				onPress, (button, stack, mouseX, mouseY) -> {
+					if(!this.menu.getOwner().canScan())
+						this.renderTooltip(stack, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "scan_delay"))).withStyle(TextFormatting.RED), mouseX, mouseY);
+				});
 	}
 
 }

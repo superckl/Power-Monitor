@@ -7,6 +7,8 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import lombok.Setter;
+import me.superckl.upm.UPMTile;
+import me.superckl.upm.network.EnergyNetwork;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.text.ITextComponent;
@@ -40,8 +42,16 @@ public abstract class UPMScreenMode {
 
 	public abstract UPMScreenModeType getType();
 
-	public boolean shouldReopen(final UPMScreenModeType type) {
+	public boolean networkChanged(final UPMScreenModeType type) {
 		return type != this.getType();
+	}
+
+	protected EnergyNetwork getNetwork() {
+		return this.screen.getMenu().getOwner().getNetwork();
+	}
+
+	protected UPMTile getUPM() {
+		return this.screen.getMenu().getOwner();
 	}
 
 }

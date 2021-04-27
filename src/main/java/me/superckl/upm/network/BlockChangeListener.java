@@ -1,4 +1,4 @@
-package me.superckl.upm.network.member;
+package me.superckl.upm.network;
 
 import me.superckl.upm.UPMTile;
 import net.minecraftforge.event.world.BlockEvent;
@@ -10,10 +10,12 @@ public class BlockChangeListener {
 	public void onBlockChange(final BlockEvent.NeighborNotifyEvent e) {
 		if(e.getWorld().isClientSide())
 			return;
-		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getNetwork() != null).map(UPMTile::getNetwork).forEach(network -> {
+		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getNetwork() != null).forEach(tile -> {
+			final EnergyNetwork network = tile.getNetwork();
 			if(network.getMembers().stream().anyMatch(wrapped -> wrapped.getPositions().contains(e.getPos()))) {
 				network.scan();
 				network.getOwner().resetScanDelay();
+				tile.syncToClientLight(null);
 			}
 		});
 	}

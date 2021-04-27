@@ -34,7 +34,6 @@ public class UPMScanStatePacket {
 					if(currentScreen instanceof UPMScreen)
 						((UPMScreen)currentScreen).onScanStateChanged(this.state);
 				}
-
 			});
 		supplier.get().setPacketHandled(true);
 	}
