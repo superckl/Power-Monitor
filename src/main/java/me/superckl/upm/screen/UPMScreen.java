@@ -1,7 +1,5 @@
 package me.superckl.upm.screen;
 
-import java.util.List;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.UPM;
@@ -14,7 +12,6 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
@@ -43,9 +40,17 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 		return super.addButton(button);
 	}
 
+	public Slot getHoveredSlot() {
+		return this.hoveredSlot;
+	}
+
 	public void onNetworkChanged(final UPMTile tile) {
 		if(this.menu.getUPMPosition().equals(tile.getBlockPos()) && this.mode.shouldReopen(tile.getScreenType()))
 			this.minecraft.setScreen(UPMScreen.from(tile));
+	}
+
+	public void onScanStateChanged(final boolean state) {
+		this.mode.upmScanStateChanged(state);
 	}
 
 	@Override
@@ -59,15 +64,23 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 	}
 
 	@Override
-	public void renderWrappedToolTip(final MatrixStack matrixStack, List<? extends ITextProperties> tooltips, final int mouseX,
-			final int mouseY, final FontRenderer font) {
-		tooltips = this.mode.modifyTooltip(this.hoveredSlot, tooltips);
-		super.renderWrappedToolTip(matrixStack, tooltips, mouseX, mouseY, font);
+	protected void renderTooltip(final MatrixStack stack, final int mouseX, final int mouseY) {
+		this.mode.renderTooltip(stack, mouseX, mouseY);
 	}
 
 	@Override
 	protected void renderBg(final MatrixStack stack, final float partial, final int mouseX, final int mouseY) {
 		this.mode.renderBackground(stack, mouseX, mouseY);
+		for(final Slot slot:this.menu.slots) {
+			if(slot.getItem().isEmpty())
+				continue;
+			final int color = this.mode.getSlotBackgroundColor(slot);
+			if(color != -1) {
+				final int x = this.getGuiLeft()+slot.x;
+				final int y = this.getGuiTop()+slot.y;
+				this.fillGradient(stack, x, y, x+16, y+16, color, color);
+			}
+		}
 	}
 
 	@Override

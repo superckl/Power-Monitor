@@ -1,8 +1,16 @@
 package me.superckl.upm;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import lombok.Getter;
+import me.superckl.upm.network.EnergyNetwork;
+import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.packet.UPMPacketHandler;
+import me.superckl.upm.packet.UPMScanStatePacket;
 import me.superckl.upm.screen.UPMScreen;
 import me.superckl.upm.screen.UPMScreenModeType;
 import net.minecraft.block.BlockState;
@@ -12,23 +20,46 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class UPMTile extends TileEntity implements ITickableTileEntity{
 
-	private int scanDelay = 0;
+	public static final Set<UPMTile> LOADED_TILES = Collections.newSetFromMap(new IdentityHashMap<>());
+
+	private final int scanDelay = 60;
+
+	private int scanTicks = this.scanDelay;
 	@Getter
-	private EnergyNetwork network;
+	private EnergyNetwork network = null;
 	private Supplier<EnergyNetwork> networkSupplier;
+	private boolean scanRequested;
+
+	@Getter
+	private final Map<TileEntityType<?>, MemberType> typeOverrides = new IdentityHashMap<>();
 
 	public UPMTile() {
 		super(ModRegisters.UPM_TILE_TYPE.get());
+	}
+
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		UPMTile.LOADED_TILES.add(this);
+	}
+
+	@Override
+	public void setRemoved() {
+		UPMTile.LOADED_TILES.remove(this);
+		super.setRemoved();
 	}
 
 	@Override
@@ -44,22 +75,64 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		}
 		if(this.level.isClientSide)
 			return;
-		if(this.scanDelay > 0)
-			this.scanDelay--;
+		if(this.scanTicks > 0)
+			this.scanTicks--;
+		else if(this.scanTicks <= 0)
+			if(this.scanRequested)
+				this.scanNetwork();
+			else
+				UPMPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)),
+						new UPMScanStatePacket(this.worldPosition, true));
+		if(this.network != null)
+			this.network.tick();
 	}
 
-	public void scanNetwork() {
+	public boolean requestScan() {
+		if(this.level.isClientSide)
+			return false;
+		if(this.scanTicks <= 0) {
+			this.scanNetwork();
+			return true;
+		}
+		this.scanRequested = true;
+		return false;
+	}
+
+	private void scanNetwork() {
 		if(this.level.isClientSide)
 			return;
-		if(this.scanDelay <= 0) {
-			if(this.network == null)
-				this.network = new EnergyNetwork(this);
-			if(this.network.scan()) {
-				this.setChanged();
-				this.syncToClientLight(null);
-			}
-			this.scanDelay = 100;
+		if(this.network == null)
+			this.network = new EnergyNetwork(this);
+		if(this.network.scan()) {
+			this.setChanged();
+			this.syncToClientLight(null);
 		}
+		this.resetScanDelay();
+		this.scanRequested = false;
+	}
+
+	public void resetScanDelay() {
+		this.scanTicks = this.scanDelay;
+		UPMPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)),
+				new UPMScanStatePacket(this.worldPosition, false));
+	}
+
+	public void clientScanState(final boolean state) {
+		if(!this.level.isClientSide)
+			return;
+		if(state)
+			this.scanTicks = 0;
+		else
+			this.scanTicks = this.scanDelay;
+	}
+
+	public boolean canScan() {
+		return this.scanTicks <= 0;
+	}
+
+	public void setTypeOverrides(final Map<TileEntityType<?>, MemberType> overrides) {
+		this.typeOverrides.clear();
+		this.typeOverrides.putAll(overrides);
 	}
 
 	public UPMScreenModeType getScreenType() {
@@ -85,6 +158,8 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	public static final String NETWORK_KEY = "network";
 	public static final String DELAY_KEY = "delay";
+	public static final String TYPE_OVERRIDE_KEY = "overrides";
+	public static final String SCAN_STATE_KEY = "scan";
 
 	@Override
 	public SUpdateTileEntityPacket getUpdatePacket() {
@@ -93,6 +168,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		final CompoundNBT nbt = new CompoundNBT();
 		if(this.network != null)
 			nbt.put(UPMTile.NETWORK_KEY, this.network.serializeNBT());
+		nbt.putBoolean(UPMTile.SCAN_STATE_KEY, this.canScan());
 		return new SUpdateTileEntityPacket(this.worldPosition, -1, nbt);
 	}
 
@@ -106,6 +182,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			this.network.deserializeNBT(pkt.getTag().getCompound(UPMTile.NETWORK_KEY));
 		}else
 			this.network = null;
+		this.clientScanState(pkt.getTag().getBoolean(UPMTile.SCAN_STATE_KEY));
 		if(ClientHelper.getMinecraft().screen instanceof UPMScreen)
 			((UPMScreen)ClientHelper.getMinecraft().screen).onNetworkChanged(this);
 	}
@@ -113,9 +190,13 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	@Override
 	public CompoundNBT save(final CompoundNBT nbt) {
 		final CompoundNBT data = new CompoundNBT();
-		data.putInt(UPMTile.DELAY_KEY, this.scanDelay);
 		if(this.network != null)
 			data.put(UPMTile.NETWORK_KEY, this.network.serializeNBT());
+		if(!this.typeOverrides.isEmpty()) {
+			final CompoundNBT typeOverrides = new CompoundNBT();
+			this.typeOverrides.forEach((loc, type) -> typeOverrides.putString(loc.getRegistryName().toString(), type.name()));
+			data.put(UPMTile.TYPE_OVERRIDE_KEY, typeOverrides);
+		}
 		nbt.put(UPM.MOD_ID, data);
 		return super.save(nbt);
 	}
@@ -123,7 +204,6 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	@Override
 	public void load(final BlockState state, final CompoundNBT nbt) {
 		final CompoundNBT data = nbt.getCompound(UPM.MOD_ID);
-		this.scanDelay = data.getInt(UPMTile.DELAY_KEY);
 		if(data.contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT networkNBT = data.getCompound(UPMTile.NETWORK_KEY);
 			final Supplier<EnergyNetwork> supplier = () -> {
@@ -135,6 +215,11 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 				this.networkSupplier = supplier;
 			else
 				this.network = supplier.get();
+		}
+		if(data.contains(UPMTile.TYPE_OVERRIDE_KEY, Constants.NBT.TAG_COMPOUND)) {
+			final CompoundNBT typeOverrides = data.getCompound(UPMTile.TYPE_OVERRIDE_KEY);
+			this.typeOverrides.clear();
+			typeOverrides.getAllKeys().forEach(loc -> this.typeOverrides.put(ForgeRegistries.TILE_ENTITIES.getValue(new ResourceLocation(loc)), MemberType.valueOf(typeOverrides.getString(loc))));
 		}
 		super.load(state, nbt);
 	}

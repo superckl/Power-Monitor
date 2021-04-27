@@ -1,6 +1,13 @@
 {
   "gui.upm.name": "Universal Power Monitor",
   "gui.upm.scan": "Scan Network",
+  "gui.upm.rescan": "Rescan",
   "gui.upm.no_network": "No stored network:",
+  "gui.upm.connected_blocks": "Connected Blocks: %d",
+  "gui.upm.total_energy": "Total:",
+  "gui.upm.storage_energy": "Storage:",
+  "gui.upm.cable_energy": "Cable:",
+  "gui.upm.machine_energy": "Machine:",
+  "gui.upm.generator_energy": "Generator:",
   "block.upm.upm": "Universal Power Monitor"
 }

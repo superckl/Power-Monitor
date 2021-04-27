@@ -1,7 +1,7 @@
 package me.superckl.upm.screen;
 
 import lombok.Getter;
-import me.superckl.upm.EnergyNetwork;
+import me.superckl.upm.network.EnergyNetwork;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;

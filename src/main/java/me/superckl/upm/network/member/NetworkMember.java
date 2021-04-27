@@ -1,4 +1,4 @@
-package me.superckl.upm.network;
+package me.superckl.upm.network.member;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,21 +9,25 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.superckl.upm.LogHelper;
 import me.superckl.upm.ModRegisters;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
+@RequiredArgsConstructor
 public abstract class NetworkMember{
+
+	@Getter
+	protected final MemberType type;
 
 	private static final Set<ResourceLocation> WARNED = Sets.newHashSet();
 
 	public abstract int getMaxStorage();
 
 	public abstract int getCurrentEnergy();
-
-	public abstract MemberType type();
 
 	public Direction[] childDirections() {
 		return Direction.values();
@@ -44,7 +48,7 @@ public abstract class NetworkMember{
 	}
 
 	public boolean connects(final NetworkMember adjacent, final Direction side) {
-		return this.canExtract() && adjacent.canInsert() || this.canInsert() && adjacent.canExtract();
+		return this.getType().connects();
 	}
 
 	public abstract boolean canExtract();

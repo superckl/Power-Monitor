@@ -1,4 +1,4 @@
-package me.superckl.upm.network;
+package me.superckl.upm.network.member;
 
 import java.lang.ref.WeakReference;
 import java.util.Optional;
@@ -12,7 +12,8 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 
 	private final WeakReference<IEnergyStorage> storage;
 
-	public ForgeEnergyNetworkMember(final IEnergyStorage storage) {
+	public ForgeEnergyNetworkMember(final IEnergyStorage storage, final MemberType type) {
+		super(type);
 		this.storage = new WeakReference<>(storage);
 	}
 
@@ -24,23 +25,6 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 	@Override
 	public int getCurrentEnergy() {
 		return this.storage.get().getEnergyStored();
-	}
-
-	@Override
-	public Direction[] childDirections() {
-		if(this.storage.get().canExtract())
-			return Direction.values();
-		return new Direction[0];
-	}
-
-	@Override
-	public MemberType type() {
-		final IEnergyStorage cap = this.storage.get();
-		if(cap.canExtract() && cap.canReceive())
-			return MemberType.STORAGE;
-		if(cap.canReceive() && !cap.canExtract())
-			return MemberType.MACHINE;
-		return MemberType.UNKNOWN;
 	}
 
 	@Override
@@ -68,7 +52,7 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 
 		@Override
 		public Optional<ForgeEnergyNetworkMember> getNetworkMember(final TileEntity tile, final Direction side) {
-			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(ForgeEnergyNetworkMember::new);
+			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(storage -> new ForgeEnergyNetworkMember(storage, this.typeFromTag(tile.getType())));
 		}
 
 	}

@@ -2,8 +2,8 @@ package me.superckl.upm;
 
 import java.util.function.Supplier;
 
-import me.superckl.upm.network.ForgeEnergyNetworkMember;
-import me.superckl.upm.network.NetworkMemberResolver;
+import me.superckl.upm.network.member.ForgeEnergyNetworkMember;
+import me.superckl.upm.network.member.NetworkMemberResolver;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

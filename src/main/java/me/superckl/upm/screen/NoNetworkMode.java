@@ -1,5 +1,7 @@
 package me.superckl.upm.screen;
 
+import java.util.IdentityHashMap;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.UPM;
@@ -19,12 +21,21 @@ public class NoNetworkMode extends UPMScreenMode{
 	public static final int HEIGHT = 79;
 	public static final ITextComponent NO_NETWORK_TEXT = new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "no_network")));
 
+	private Button scanButton;
+
 	@Override
 	public void init() {
 		final int width = 100;
 		final int height = 20;
-		this.screen.addButton(new Button(this.screen.getGuiLeft()+(this.getWidth()-width)/2, 15+this.screen.getGuiTop()+(this.getHeight()-height)/2, width, height,
-				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "scan"))), this::onScanButtonPress));
+		this.scanButton = new Button(this.screen.getGuiLeft()+(this.getWidth()-width)/2, 15+this.screen.getGuiTop()+(this.getHeight()-height)/2, width, height,
+				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "scan"))), this::onScanButtonPress);
+		this.scanButton.active = this.screen.getMenu().getNetwork().getOwner().canScan();
+		this.screen.addButton(this.scanButton);
+	}
+
+	@Override
+	public void upmScanStateChanged(final boolean state) {
+		this.scanButton.active = state;
 	}
 
 	@Override
@@ -40,7 +51,7 @@ public class NoNetworkMode extends UPMScreenMode{
 	}
 
 	public void onScanButtonPress(final Button button) {
-		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.screen.getMenu().getUPMPosition()));
+		UPMPacketHandler.INSTANCE.sendToServer(new RequestUPMScanPacket(this.screen.getMenu().getUPMPosition(), new IdentityHashMap<>()));
 	}
 
 	@Override

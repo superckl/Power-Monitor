@@ -5,6 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
+import me.superckl.upm.packet.UPMScanStatePacket;
+import me.superckl.upm.packet.UpdateEnergyPacket;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -33,6 +35,10 @@ public class UPM {
 				OpenUPMScreenPacket::decode, OpenUPMScreenPacket::handle);
 		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, RequestUPMScanPacket.class, RequestUPMScanPacket::encode,
 				RequestUPMScanPacket::decode, RequestUPMScanPacket::handle);
+		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, UpdateEnergyPacket.class, UpdateEnergyPacket::encode,
+				UpdateEnergyPacket::decode, UpdateEnergyPacket::handle);
+		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, UPMScanStatePacket.class, UPMScanStatePacket::encode,
+				UPMScanStatePacket::decode, UPMScanStatePacket::handle);
 	}
 
 }
