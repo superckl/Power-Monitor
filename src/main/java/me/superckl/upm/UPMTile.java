@@ -87,8 +87,6 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			else
 				UPMPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)),
 						new UPMScanStatePacket(this.worldPosition, true));
-		if(this.network != null)
-			this.network.tick();
 	}
 
 	public boolean requestScan() {

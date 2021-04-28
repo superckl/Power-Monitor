@@ -165,7 +165,7 @@ public class NetworkMode extends UPMScreenMode{
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+80, 0, 195, 80, 12);
 
 		this.screen.blit(stack, this.screen.getGuiLeft()+175, this.screen.getGuiTop()+123, this.needsScrollBars() ? 195:207, 0, 12, 15);
-		
+
 		final EnergyNetwork network = this.getNetwork();
 
 		long storage = network.getTotalStorage();
@@ -212,14 +212,29 @@ public class NetworkMode extends UPMScreenMode{
 		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_MACHINE_ID), 14, 66.5F, black);
 		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_GENERATOR_ID), 14, 81.5F, black);
 
+		final EnergyNetwork network = this.getNetwork();
+		this.renderGainIndicator(network.deltaTotalStored(), NetworkMode.WIDTH-80-15, 22F, stack);
+		this.renderGainIndicator(network.deltaStored(MemberType.STORAGE), NetworkMode.WIDTH-80-15, 37F, stack);
+		this.renderGainIndicator(network.deltaStored(MemberType.CABLE), NetworkMode.WIDTH-80-15, 52F, stack);
+		this.renderGainIndicator(network.deltaStored(MemberType.MACHINE), NetworkMode.WIDTH-80-15, 67F, stack);
+		this.renderGainIndicator(network.deltaStored(MemberType.GENERATOR), NetworkMode.WIDTH-80-15, 82F, stack);
+
 		if(this.hasTypeOverride())
 			font.draw(stack, new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID).withStyle(TextFormatting.RED), 8, 100, black);
+	}
+
+	private void renderGainIndicator(final long gain, final float x, final float y, final MatrixStack stack) {
+		if(gain == 0)
+			return;
+		final int color = gain > 0 ? TextFormatting.DARK_GREEN.getColor():TextFormatting.DARK_RED.getColor();
+		final String text = gain > 0 ? "+":"-";
+		this.screen.getFont().draw(stack, new StringTextComponent(text).withStyle(TextFormatting.BOLD), x, y, color);
 	}
 
 	private boolean needsScrollBars() {
 		return this.typeToHelpers != null && this.typeToHelpers.size() > this.inv.getContainerSize();
 	}
-	
+
 	private List<ITextComponent> tooltipForBarHover(final int mouseX, final int mouseY){
 		if(mouseX >= this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8 && mouseX < this.screen.getGuiLeft()+NetworkMode.WIDTH-8) {
 			boolean isTotal = false;

@@ -18,12 +18,12 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 	}
 
 	@Override
-	public int getMaxStorage() {
+	public long getMaxStorage() {
 		return this.storage.get().getMaxEnergyStored();
 	}
 
 	@Override
-	public int getCurrentEnergy() {
+	public long getCurrentEnergy() {
 		return this.storage.get().getEnergyStored();
 	}
 
@@ -33,13 +33,13 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 	}
 
 	@Override
-	public boolean canExtract() {
-		return this.storage.get().canExtract();
+	public int addEnergy(final int energy) {
+		return this.storage.get().receiveEnergy(energy, false);
 	}
 
 	@Override
-	public boolean canInsert() {
-		return this.storage.get().canReceive();
+	public int removeEnergy(final int energy) {
+		return this.storage.get().extractEnergy(energy, false);
 	}
 
 	@Override
@@ -53,6 +53,11 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 		@Override
 		public Optional<ForgeEnergyNetworkMember> getNetworkMember(final TileEntity tile, final Direction side) {
 			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(storage -> new ForgeEnergyNetworkMember(storage, this.typeFromTag(tile.getType())));
+		}
+
+		@Override
+		public int getPriority(final TileEntity tile) {
+			return 0;
 		}
 
 	}

@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.network.member.MemberType;
-import me.superckl.upm.util.PacketUtil;
+import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +24,7 @@ public class RequestUPMScanPacket {
 
 	public void encode(final PacketBuffer buffer) {
 		buffer.writeBlockPos(this.tilePosition);
-		PacketUtil.writeMap(this.typeOverrides, PacketBuffer::writeRegistryId, PacketBuffer::writeEnum, buffer);
+		SerializationUtil.writeMap(this.typeOverrides, PacketBuffer::writeRegistryId, PacketBuffer::writeEnum, buffer);
 	}
 
 	public void handle(final Supplier<NetworkEvent.Context> supplier) {
@@ -44,7 +44,7 @@ public class RequestUPMScanPacket {
 
 	public static RequestUPMScanPacket decode(final PacketBuffer buffer) {
 		final BlockPos pos = buffer.readBlockPos();
-		final Map<TileEntityType<?>, MemberType> typeOverrides = PacketUtil.readMap(IdentityHashMap::new, pBuffer -> pBuffer.readRegistryIdSafe(TileEntityType.class), pBuffer -> pBuffer.readEnum(MemberType.class), buffer);
+		final Map<TileEntityType<?>, MemberType> typeOverrides = SerializationUtil.readMap(IdentityHashMap::new, pBuffer -> pBuffer.readRegistryIdSafe(TileEntityType.class), pBuffer -> pBuffer.readEnum(MemberType.class), buffer);
 		return new RequestUPMScanPacket(pos, typeOverrides);
 	}
 

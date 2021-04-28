@@ -25,7 +25,7 @@ public class SimpleMemberList extends NetworkItemStackHelper{
 
 	@Override
 	public boolean add(final WrappedNetworkMember member, final World world) {
-		if(member.getPositions().size() == 1 && world.getBlockState(Iterables.getOnlyElement(member.getPositions())).getBlock() == this.block) {
+		if(member.getPositions().size() == 1 && world.getBlockState(Iterables.getOnlyElement(member.getPositions().keySet())).getBlock() == this.block) {
 			this.members.add(member);
 			return true;
 		}
@@ -43,7 +43,7 @@ public class SimpleMemberList extends NetworkItemStackHelper{
 	}
 
 	public static SimpleMemberList from(final WrappedNetworkMember member, final World world) {
-		final Block block = world.getBlockState(Iterables.getOnlyElement(member.getPositions())).getBlock();
+		final Block block = world.getBlockState(Iterables.getOnlyElement(member.getPositions().keySet())).getBlock();
 		return new SimpleMemberList(block, member);
 	}
 

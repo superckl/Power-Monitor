@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import me.superckl.upm.ClientHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.network.member.MemberType;
-import me.superckl.upm.util.PacketUtil;
+import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -24,8 +24,8 @@ public class UpdateEnergyPacket {
 
 	public void encode(final PacketBuffer buffer) {
 		buffer.writeBlockPos(this.tilePosition);
-		PacketUtil.writeMap(this.storage, PacketBuffer::writeEnum, PacketBuffer::writeVarLong, buffer);
-		PacketUtil.writeMap(this.stored, PacketBuffer::writeEnum, PacketBuffer::writeVarLong, buffer);
+		SerializationUtil.writeMap(this.storage, PacketBuffer::writeEnum, PacketBuffer::writeVarLong, buffer);
+		SerializationUtil.writeMap(this.stored, PacketBuffer::writeEnum, PacketBuffer::writeVarLong, buffer);
 	}
 
 	public void handle(final Supplier<NetworkEvent.Context> supplier) {
@@ -44,8 +44,8 @@ public class UpdateEnergyPacket {
 
 	public static UpdateEnergyPacket decode(final PacketBuffer buffer) {
 		final BlockPos pos = buffer.readBlockPos();
-		final Map<MemberType, Long> storage = PacketUtil.readMap(() -> new EnumMap<>(MemberType.class), pBuffer -> pBuffer.readEnum(MemberType.class), PacketBuffer::readVarLong, buffer);
-		final Map<MemberType, Long> stored = PacketUtil.readMap(() -> new EnumMap<>(MemberType.class), pBuffer -> pBuffer.readEnum(MemberType.class), PacketBuffer::readVarLong, buffer);
+		final Map<MemberType, Long> storage = SerializationUtil.readMap(() -> new EnumMap<>(MemberType.class), pBuffer -> pBuffer.readEnum(MemberType.class), PacketBuffer::readVarLong, buffer);
+		final Map<MemberType, Long> stored = SerializationUtil.readMap(() -> new EnumMap<>(MemberType.class), pBuffer -> pBuffer.readEnum(MemberType.class), PacketBuffer::readVarLong, buffer);
 		return new UpdateEnergyPacket(pos, storage, stored);
 	}
 

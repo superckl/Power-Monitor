@@ -46,7 +46,7 @@ public class MultiblockMember extends NetworkItemStackHelper{
 
 	public static MultiblockMember from(final WrappedNetworkMember member, final World world) {
 		final Reference2IntMap<Block> blocks = new Reference2IntArrayMap<>();
-		member.getPositions().forEach(pos -> {
+		member.getPositions().forEach((pos, dir) -> {
 			blocks.mergeInt(world.getBlockState(pos).getBlock(), 1, (val1, val2) -> val1+val2);
 		});
 		return new MultiblockMember(member, blocks);

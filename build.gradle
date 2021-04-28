@@ -13,7 +13,28 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
 repositories{
-    maven { url 'https://modmaven.dev/' }
+    maven { url 'https://modmaven.dev/' } //Mekanism
+    maven { url 'https://maven.blamejared.com/'} //IE
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }//Thermal Series
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDir 'src/generated/resources'
+		}
+	}
+	datagen {
+		compileClasspath += main.compileClasspath
+		runtimeClasspath += main.runtimeClasspath
+		compileClasspath += main.output
+		runtimeClasspath += main.output
+	}
 }
 
 dependencies {
@@ -30,6 +51,17 @@ dependencies {
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:additions")// Mekanism: Additions
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")// Mekanism: Generators
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")// Mekanism: Tools
+    
+    //Thermal Series
+    runtimeOnly fg.deobf("curse.maven:thermalfoundation-222880:3248150")
+    runtimeOnly fg.deobf("curse.maven:thermalexpansion-69163:3247000")
+    runtimeOnly fg.deobf("curse.maven:cofhcore-69162:3249453")
+    
+    //IE currently has naming collisions with official mappings :(
+    //Immersive Engineering
+    //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
+	//datagenCompile  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:datagen")
+    //runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
@@ -48,6 +80,8 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+			property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
 
             mods {
                 archivesBaseName {
@@ -61,6 +95,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+			property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
 
             mods {
                 archivesBaseName {

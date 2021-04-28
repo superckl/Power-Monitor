@@ -2,7 +2,7 @@ package me.superckl.upm;
 
 import org.apache.logging.log4j.LogManager;
 
-import me.superckl.upm.network.BlockChangeListener;
+import me.superckl.upm.network.NetworkListeners;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
@@ -32,7 +32,7 @@ public class UPM {
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent e) {
-		e.enqueueWork(() -> MinecraftForge.EVENT_BUS.register(new BlockChangeListener()));
+		e.enqueueWork(() -> MinecraftForge.EVENT_BUS.register(new NetworkListeners()));
 		int pIndex = 0;
 		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, OpenUPMScreenPacket.class, OpenUPMScreenPacket::encode,
 				OpenUPMScreenPacket::decode, OpenUPMScreenPacket::handle);

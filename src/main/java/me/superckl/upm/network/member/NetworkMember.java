@@ -1,6 +1,7 @@
 package me.superckl.upm.network.member;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -25,9 +26,9 @@ public abstract class NetworkMember{
 
 	private static final Set<ResourceLocation> WARNED = Sets.newHashSet();
 
-	public abstract int getMaxStorage();
+	public abstract long getMaxStorage();
 
-	public abstract int getCurrentEnergy();
+	public abstract long getCurrentEnergy();
 
 	public Direction[] childDirections() {
 		return Direction.values();
@@ -51,9 +52,12 @@ public abstract class NetworkMember{
 		return overrideType.orElseGet(this::getType).connects();
 	}
 
-	public abstract boolean canExtract();
+	public boolean requiresInjectionCheck() {
+		return true;
+	}
 
-	public abstract boolean canInsert();
+	public abstract int addEnergy(int energy);
+	public abstract int removeEnergy(int energy);
 
 	public abstract boolean isSameStorage(NetworkMember member);
 
@@ -62,8 +66,9 @@ public abstract class NetworkMember{
 	public static Optional<? extends NetworkMember> from(@Nullable final TileEntity te, final Direction side) {
 		if(te == null)
 			return Optional.empty();
-		for(final NetworkMemberResolver<?> resolver:ModRegisters.RESOLVER_REGISTRY.get().getValues()) {
-			final Optional<? extends NetworkMember> opt = resolver.getNetworkMember(te, side);
+		final Iterator<NetworkMemberResolver<?>> it = ModRegisters.RESOLVER_REGISTRY.get().getValues().stream().sorted(NetworkMemberResolver.REVERSE_COMPARATOR_FACTORY.apply(te)).iterator();
+		while(it.hasNext()) {
+			final Optional<? extends NetworkMember> opt = it.next().getNetworkMember(te, side);
 			if(opt.isPresent())
 				return opt;
 		}
