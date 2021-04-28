@@ -37,7 +37,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	private final int scanDelay = 60;
 
-	private int scanTicks = this.scanDelay;
+	private int scanTicks = 0;
 	@Getter
 	private EnergyNetwork network = null;
 	private Supplier<EnergyNetwork> networkSupplier;
