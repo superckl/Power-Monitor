@@ -23,6 +23,10 @@ public abstract class UPMScreenMode {
 	public void renderLabels(final MatrixStack stack, final int mouseX, final int mouseY) {}
 	public void initSlots(final UPMClientSideContainer clientContainer) {}
 	public void slotClicked(final Slot slot, final int mouseX, final int mouseY, final ClickType type) {}
+	public boolean mouseScrolled(final double mouseX, final double mouseY, final double scroll) {return false;}
+	public boolean mouseClicked(final double mouseX, final double mouseY, final int mouseButton) {return false;}
+	public boolean mouseDragged(final double newX, final double newY, final int button, final double deltaX, final double deltaY) {return false;}
+	public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {return false;}
 	public int getSlotBackgroundColor(final Slot slot) {return -1;}
 	public void upmScanStateChanged(final boolean state) {}
 

@@ -10,6 +10,7 @@
   "gui.upm.machine_energy": "Machine:",
   "gui.upm.generator_energy": "Generator:",
   "gui.upm.scan_delay": "Please wait for scan cooldown...",
-  "gui.upm.config_changed": "Config changed: rescan to save changes",
+  "gui.upm.config_changed": "Config changed!",
+  "gui.upm.rescan_save": "Rescan to save changes",
   "block.upm.upm": "Universal Power Monitor"
 }

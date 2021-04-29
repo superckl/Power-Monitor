@@ -26,13 +26,12 @@ public class NetworkListeners {
 			return;
 		//Initialize the set with the changed block's positions to check if it
 		//was in a network
-		Set<BlockPos> updated = Sets.newHashSet(e.getPos());
+		final Set<BlockPos> updated = Sets.newHashSet(e.getPos());
 		//If the updated block has sided network members, check for networks on those sides as well
-		TileEntity teUpdated = e.getWorld().getBlockEntity(e.getPos());
-		if(teUpdated != null) {
+		final TileEntity teUpdated = e.getWorld().getBlockEntity(e.getPos());
+		if(teUpdated != null)
 			e.getNotifiedSides().forEach(dir -> NetworkMember.from(teUpdated, dir)
 					.ifPresent(member -> updated.add(e.getPos().relative(dir))));
-		}
 		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getNetwork() != null).forEach(tile -> {
 			//For each loaded network, test if it contains any of the updated positions and rescan if so
 			final EnergyNetwork network = tile.getNetwork();

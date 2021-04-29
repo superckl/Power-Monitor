@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -31,6 +33,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -52,11 +55,15 @@ public class NetworkMode extends UPMScreenMode{
 	public static final String CONNECTED_BLOCKS_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "connected_blocks"));
 
 	public static final String CONFIG_CHANGED_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "config_changed"));
+	public static final String RESCAN_SAVE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "rescan_save"));
 
 	private final UnlimitedInventory inv = new UnlimitedInventory(9*3);
 	private Multimap<MemberType, NetworkItemStackHelper> typeToHelpers;
 
 	private Button scanButton;
+	private float scrollBar;
+	private boolean scrolling;
+	private double scrollBarRelY;
 
 	private int numBlocks;
 
@@ -80,12 +87,7 @@ public class NetworkMode extends UPMScreenMode{
 		if(type != this.getType())
 			return true;
 		this.typeToHelpers = this.consolidateToItems(this.getNetwork());
-		final List<NetworkItemStackHelper> helpers = this.updateInventory();
-		for (final Slot slot:this.screen.getMenu().slots)
-			if(slot instanceof NetworkBlockSlot) {
-				final NetworkItemStackHelper helper = slot.getSlotIndex() < helpers.size() ? helpers.get(slot.getSlotIndex()):null;
-				((NetworkBlockSlot)slot).setMember(helper);
-			}
+		this.updateInventoryAndSlots();
 		return false;
 	}
 
@@ -119,15 +121,27 @@ public class NetworkMode extends UPMScreenMode{
 		}
 	}
 
+	public void updateInventoryAndSlots() {
+		final List<NetworkItemStackHelper> helpers = this.updateInventory();
+		for (final Slot slot:this.screen.getMenu().slots)
+			if(slot instanceof NetworkBlockSlot) {
+				final NetworkItemStackHelper helper = slot.getSlotIndex() < helpers.size() ? helpers.get(slot.getSlotIndex()):null;
+				((NetworkBlockSlot)slot).setMember(helper);
+			}
+	}
+
 	public List<NetworkItemStackHelper> updateInventory() {
 		this.inv.clearContent();
 		this.numBlocks = 0;
 		final List<NetworkItemStackHelper> helpers = new ArrayList<>(Math.min(this.typeToHelpers.size(), 9*3));
 		if(!this.typeToHelpers.isEmpty()) {
+			int toSkip = Math.max(0, Math.round((this.getTotalRows()-3)*this.scrollBar)*9);
 			int invIndex = 0;
 			for(final MemberType type:MemberType.values())
 				if(invIndex < this.inv.getContainerSize())
 					for(final NetworkItemStackHelper member:this.typeToHelpers.get(type)) {
+						if(toSkip-- > 0)
+							continue;
 						if(invIndex >= this.inv.getContainerSize())
 							break;
 						final ItemStack stack = member.toStack();
@@ -164,7 +178,7 @@ public class NetworkMode extends UPMScreenMode{
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+65, 0, 195, 80, 12);
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+80, 0, 195, 80, 12);
 
-		this.screen.blit(stack, this.screen.getGuiLeft()+175, this.screen.getGuiTop()+123, this.needsScrollBars() ? 195:207, 0, 12, 15);
+		this.screen.blit(stack, this.screen.getGuiLeft()+175, this.screen.getGuiTop()+123+Math.round((52-15)*this.scrollBar), this.needsScrollBars() ? 195:207, 0, 12, 15);
 
 		final EnergyNetwork network = this.getNetwork();
 
@@ -194,6 +208,8 @@ public class NetworkMode extends UPMScreenMode{
 		final List<ITextComponent> tooltip = this.tooltipForBarHover(mouseX, mouseY);
 		if(tooltip != null)
 			this.screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);
+		else if(this.isOverConfigChanged(mouseX, mouseY))
+			this.screen.renderTooltip(stack, new TranslationTextComponent(NetworkMode.RESCAN_SAVE_ID).withStyle(TextFormatting.RED), mouseX, mouseY);
 		else
 			super.renderTooltip(stack, mouseX, mouseY);
 	}
@@ -220,7 +236,16 @@ public class NetworkMode extends UPMScreenMode{
 		this.renderGainIndicator(network.deltaStored(MemberType.GENERATOR), NetworkMode.WIDTH-80-15, 82F, stack);
 
 		if(this.hasTypeOverride())
-			font.draw(stack, new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID).withStyle(TextFormatting.RED), 8, 100, black);
+			font.draw(stack, new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID).withStyle(TextFormatting.DARK_RED), 8, 100, black);
+	}
+
+	private boolean isOverConfigChanged(int mouseX, int mouseY) {
+		if(!this.hasTypeOverride())
+			return false;
+		mouseX -= this.screen.getGuiLeft();
+		mouseY -= this.screen.getGuiTop();
+		final int width = this.screen.getFont().width(new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID));
+		return mouseX >= 8 && mouseX < 8+width && mouseY >= 100 && mouseY < 100+this.screen.getFont().lineHeight;
 	}
 
 	private void renderGainIndicator(final long gain, final float x, final float y, final MatrixStack stack) {
@@ -231,8 +256,74 @@ public class NetworkMode extends UPMScreenMode{
 		this.screen.getFont().draw(stack, new StringTextComponent(text).withStyle(TextFormatting.BOLD), x, y, color);
 	}
 
+	@Override
+	public boolean mouseScrolled(final double mouseX, final double mouseY, final double scroll) {
+		if(!this.needsScrollBars())
+			return false;
+		final int numRows = this.getTotalRows();
+		this.scrollBar = (float) (this.scrollBar-scroll/(numRows-3));
+		this.scrollBar = MathHelper.clamp(this.scrollBar, 0, 1);
+		this.updateInventoryAndSlots();
+		return true;
+	}
+
+	@Override
+	public boolean mouseClicked(final double mouseX, final double mouseY, final int mouseButton) {
+		if(mouseButton != GLFW.GLFW_MOUSE_BUTTON_1)
+			return super.mouseClicked(mouseX, mouseY, mouseButton);
+		if(this.isInScrollBar(mouseX, mouseY)) {
+			final int scrollBarY = this.screen.getGuiTop()+123+Math.round((52-15)*this.scrollBar);
+			this.scrollBarRelY = scrollBarY - mouseY;
+			this.scrolling = true;
+			return true;
+		}
+		return super.mouseClicked(mouseX, mouseY, mouseButton);
+	}
+
+	@Override
+	public boolean mouseDragged(final double newX, final double newY, final int button, final double deltaX, final double deltaY) {
+		if(button != GLFW.GLFW_MOUSE_BUTTON_1)
+			return super.mouseDragged(newX, newY, button, deltaX, deltaY);
+		if(this.scrolling) {
+			final int barMinY = this.screen.getGuiTop()+123;
+			final int barMaxY = barMinY+52-15;
+			final double newScrollY = MathHelper.clamp(newY+this.scrollBarRelY, barMinY, barMaxY);
+			final float prevScroll = this.scrollBar;
+			this.scrollBar = (float) ((newScrollY-barMinY)/(barMaxY-barMinY));
+
+			final int totalRows =this.getTotalRows();
+			final int toSkipBefore = Math.round((totalRows-3)*prevScroll);
+			final int toSkipNow = Math.round((totalRows-3)*this.scrollBar);
+			if(toSkipBefore != toSkipNow)
+				this.updateInventoryAndSlots();
+			return true;
+		}
+		return super.mouseDragged(newX, newY, button, deltaX, deltaY);
+	}
+
+	@Override
+	public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
+		if(button != GLFW.GLFW_MOUSE_BUTTON_1)
+			return super.mouseReleased(mouseX, mouseY, button);
+		if(this.scrolling) {
+			this.scrolling = false;
+			return true;
+		}
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+
 	private boolean needsScrollBars() {
 		return this.typeToHelpers != null && this.typeToHelpers.size() > this.inv.getContainerSize();
+	}
+
+	private int getTotalRows() {
+		return MathHelper.ceil(this.typeToHelpers.size()/9F);
+	}
+
+	public boolean isInScrollBar(final double mouseX, final double mouseY) {
+		final int scrollBarX = this.screen.getGuiLeft()+175;
+		final int scrollBarY = this.screen.getGuiTop()+123+Math.round((52-15)*this.scrollBar);
+		return mouseX >= scrollBarX && mouseX < scrollBarX + 12 && mouseY >= scrollBarY && mouseY < scrollBarY+15;
 	}
 
 	private List<ITextComponent> tooltipForBarHover(final int mouseX, final int mouseY){
@@ -299,6 +390,8 @@ public class NetworkMode extends UPMScreenMode{
 		if(slot instanceof NetworkBlockSlot && ((NetworkBlockSlot)slot).member != null) {
 			final MemberType type = ((NetworkBlockSlot)slot).getType();
 			tooltip.add(new StringTextComponent(type.name()).withStyle(type.color()));
+			if(((NetworkBlockSlot)slot).isTypeChanged())
+				tooltip.add(new TranslationTextComponent(NetworkMode.RESCAN_SAVE_ID).withStyle(TextFormatting.RED));
 			if(this.screen.getMinecraft().options.advancedItemTooltips) {
 				final Set<TileEntityType<?>> tileTypes = Collections.newSetFromMap(new IdentityHashMap<>());
 				((NetworkBlockSlot)slot).member.getMembers().forEach(wrapped -> tileTypes.addAll(wrapped.getTileTypes()));

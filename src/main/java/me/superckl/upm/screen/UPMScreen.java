@@ -98,6 +98,26 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 		this.mode.slotClicked(slot, mouseX, mouseY, type);
 	}
 
+	@Override
+	public boolean mouseScrolled(final double mouseX, final double mouseY, final double scroll) {
+		return this.mode.mouseScrolled(mouseX, mouseY, scroll) || super.mouseScrolled(mouseX, mouseY, scroll);
+	}
+
+	@Override
+	public boolean mouseClicked(final double mouseX, final double mouseY, final int mouseButton) {
+		return this.mode.mouseClicked(mouseX, mouseY, mouseButton) || super.mouseClicked(mouseX, mouseY, mouseButton);
+	}
+
+	@Override
+	public boolean mouseDragged(final double newX, final double newY, final int button, final double deltaX, final double deltaY) {
+		return this.mode.mouseDragged(newX, newY, button, deltaX, deltaY) || super.mouseDragged(newX, newY, button, deltaX, deltaY);
+	}
+
+	@Override
+	public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
+		return this.mode.mouseReleased(mouseX, mouseY, button) || super.mouseReleased(mouseX, mouseY, button);
+	}
+
 	public void onUPMRemoved(final UPMTile tile) {
 		if(this.menu.getOwner() == tile)
 			ClientHelper.getMinecraft().setScreen(null);
