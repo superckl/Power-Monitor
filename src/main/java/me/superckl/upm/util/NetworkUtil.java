@@ -148,7 +148,7 @@ public class NetworkUtil {
 		return consolidatedMembers;
 	}
 
-	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<BlockPos, Direction> positions, final World level) {
+	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<BlockPos, Direction> positions, final World level) throws IllegalStateException{
 		NetworkMember member = null;
 		final List<TileEntityType<?>> types = new ArrayList<>();
 		for(final BlockPos pos:positions.keySet()){

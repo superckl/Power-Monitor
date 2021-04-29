@@ -32,7 +32,7 @@ public class NetworkListeners {
 		if(teUpdated != null)
 			e.getNotifiedSides().forEach(dir -> NetworkMember.from(teUpdated, dir)
 					.ifPresent(member -> updated.add(e.getPos().relative(dir))));
-		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getNetwork() != null).forEach(tile -> {
+		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getLevel() == e.getWorld() && tile.getNetwork() != null).forEach(tile -> {
 			//For each loaded network, test if it contains any of the updated positions and rescan if so
 			final EnergyNetwork network = tile.getNetwork();
 			if(network.getMembers().stream().anyMatch(wrapped -> !Collections.disjoint(wrapped.getPositions().keySet(), updated))) {

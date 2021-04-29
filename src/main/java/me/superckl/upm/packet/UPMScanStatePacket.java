@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import lombok.RequiredArgsConstructor;
 import me.superckl.upm.ClientHelper;
+import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.screen.UPMScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -29,6 +30,7 @@ public class UPMScanStatePacket {
 			supplier.get().enqueueWork(() -> {
 				final TileEntity te = ClientHelper.getLevel().getBlockEntity(this.tilePosition);
 				if(te instanceof UPMTile) {
+					LogHelper.info(this.state);
 					((UPMTile)te).clientScanState(this.state);
 					final Screen currentScreen = ClientHelper.getScreen();
 					if(currentScreen instanceof UPMScreen)

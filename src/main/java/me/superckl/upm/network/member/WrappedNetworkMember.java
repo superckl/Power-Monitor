@@ -78,7 +78,7 @@ public class WrappedNetworkMember{
 		return nbt;
 	}
 
-	public static WrappedNetworkMember deserialize(final CompoundNBT nbt, final World level) {
+	public static WrappedNetworkMember deserialize(final CompoundNBT nbt, final World level) throws IllegalStateException{
 		final Map<BlockPos, Direction> positions = SerializationUtil.readMap(nbt.getCompound(WrappedNetworkMember.POSITIONS_KEY),
 				HashMap::new, inbt -> NBTUtil.readBlockPos((CompoundNBT) inbt), Constants.NBT.TAG_COMPOUND,
 				inbt -> Direction.byName(inbt.getAsString()), Constants.NBT.TAG_STRING);

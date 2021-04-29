@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import lombok.Getter;
@@ -34,12 +35,22 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	public static final Set<UPMTile> LOADED_TILES = Collections.newSetFromMap(new IdentityHashMap<>());
+	public static BiFunction<UPMTile, CompoundNBT, Supplier<EnergyNetwork>> ENERGY_NETWORK_DESERIALIZER = (tile, nbt) -> () -> {
+		final EnergyNetwork network = new EnergyNetwork(tile);
+		network.deserializeNBT(nbt);
+		return network;
+	};
 
 	private final int scanDelay = 60;
 
 	private int scanTicks = 0;
-	@Getter
 	private EnergyNetwork network = null;
+	/**
+	 * EnergyNetworks require accessing (possibly many) tile entities to be deserialized, which
+	 * is not possible on world load when tile entities are deserialized. Thus, deserialization of
+	 * the tile entity stores the energy network's deserialization in a supplier to be called when needed
+	 * after world load.
+	 */
 	private Supplier<EnergyNetwork> networkSupplier;
 	private boolean scanRequested;
 
@@ -73,20 +84,32 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		 * We can't deserialize networks on initial world load because
 		 * it requires accessing other TileEntities
 		 */
+		this.handlePendingNetwork();
+		if(this.level.isClientSide)
+			return;
+		if(this.scanTicks > 0) {
+			this.scanTicks--;
+			if(this.scanTicks == 0)
+				UPMPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)),
+						new UPMScanStatePacket(this.worldPosition, true));
+		}else if(this.scanTicks <= 0 && this.scanRequested)
+			this.scanNetwork();
+				
+	}
+
+	public EnergyNetwork getNetwork() {
+		this.handlePendingNetwork();
+		return this.network;
+	}
+
+	@SuppressWarnings("resource")
+	public void handlePendingNetwork() {
 		if(this.networkSupplier != null) {
 			this.network = this.networkSupplier.get();
 			this.networkSupplier = null;
+			if(this.level.isClientSide && ClientHelper.getMinecraft().screen instanceof UPMScreen)
+				((UPMScreen)ClientHelper.getMinecraft().screen).onNetworkChanged(this);
 		}
-		if(this.level.isClientSide)
-			return;
-		if(this.scanTicks > 0)
-			this.scanTicks--;
-		else if(this.scanTicks <= 0)
-			if(this.scanRequested)
-				this.scanNetwork();
-			else
-				UPMPacketHandler.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)),
-						new UPMScanStatePacket(this.worldPosition, true));
 	}
 
 	public boolean requestScan() {
@@ -173,19 +196,16 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		return new SUpdateTileEntityPacket(this.worldPosition, -1, nbt);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt) {
 		if(!this.level.isClientSide)
 			return;
 		if(pkt.getTag().contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
-			this.network = new EnergyNetwork(this);
-			this.network.deserializeNBT(pkt.getTag().getCompound(UPMTile.NETWORK_KEY));
+			final CompoundNBT networkNBT = pkt.getTag().getCompound(UPMTile.NETWORK_KEY);
+			this.networkSupplier = UPMTile.ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
 		}else
 			this.network = null;
 		this.clientScanState(pkt.getTag().getBoolean(UPMTile.SCAN_STATE_KEY));
-		if(ClientHelper.getMinecraft().screen instanceof UPMScreen)
-			((UPMScreen)ClientHelper.getMinecraft().screen).onNetworkChanged(this);
 	}
 
 	@Override
@@ -207,15 +227,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		final CompoundNBT data = nbt.getCompound(UPM.MOD_ID);
 		if(data.contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT networkNBT = data.getCompound(UPMTile.NETWORK_KEY);
-			final Supplier<EnergyNetwork> supplier = () -> {
-				final EnergyNetwork network = new EnergyNetwork(this);
-				network.deserializeNBT(networkNBT);
-				return network;
-			};
-			if(this.level == null)
-				this.networkSupplier = supplier;
-			else
-				this.network = supplier.get();
+			this.networkSupplier = UPMTile.ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
 		}
 		if(data.contains(UPMTile.TYPE_OVERRIDE_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT typeOverrides = data.getCompound(UPMTile.TYPE_OVERRIDE_KEY);
