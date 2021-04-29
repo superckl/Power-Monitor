@@ -1,6 +1,7 @@
 {
-	"parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "upm:block/upm"
+    "north": "upm:block/upm_front",
+    "all": "upm:block/upm_side"
   }
 }

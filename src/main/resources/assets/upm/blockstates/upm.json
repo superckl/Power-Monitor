@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "upm:block/upm",
+      "y": 90
+    },
+    "facing=north": {
       "model": "upm:block/upm"
+    },
+    "facing=south": {
+      "model": "upm:block/upm",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "upm:block/upm",
+      "y": 270
     }
   }
 }
