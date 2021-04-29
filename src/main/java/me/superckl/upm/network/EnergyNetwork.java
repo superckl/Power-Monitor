@@ -8,6 +8,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 import lombok.RequiredArgsConstructor;
+import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.network.member.WrappedNetworkMember;
@@ -154,7 +155,12 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 		if(nbt.contains(EnergyNetwork.MEMBERS_KEY, Constants.NBT.TAG_LIST)) {
 			final ListNBT list = nbt.getList(EnergyNetwork.MEMBERS_KEY, Constants.NBT.TAG_COMPOUND);
 			list.forEach(inbt -> {
-				members.add(WrappedNetworkMember.deserialize((CompoundNBT) inbt, this.upm.getLevel()));
+				try {
+					members.add(WrappedNetworkMember.deserialize((CompoundNBT) inbt, this.upm.getLevel()));
+				} catch (final IllegalStateException e) {
+					LogHelper.error("Error deserializing network member!");
+					e.printStackTrace();
+				}
 			});
 			final CompoundNBT storageNBT = nbt.getCompound(EnergyNetwork.STORAGE_KEY);
 			final CompoundNBT storedNBT = nbt.getCompound(EnergyNetwork.STORED_KEY);
