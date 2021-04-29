@@ -86,7 +86,7 @@ public class NetworkMode extends UPMScreenMode{
 	public boolean networkChanged(final UPMScreenModeType type) {
 		if(type != this.getType())
 			return true;
-		this.typeToHelpers = this.consolidateToItems(this.getNetwork());
+		this.consolidateToItems(this.getNetwork());
 		this.updateInventoryAndSlots();
 		return false;
 	}
@@ -107,7 +107,7 @@ public class NetworkMode extends UPMScreenMode{
 
 	@Override
 	public void initSlots(final UPMClientSideContainer container) {
-		this.typeToHelpers = this.consolidateToItems(this.getNetwork());
+		this.consolidateToItems(this.getNetwork());
 		if(!this.typeToHelpers.isEmpty()) {
 			final List<NetworkItemStackHelper> helpers = this.updateInventory();
 			final int startX = 9;
@@ -132,7 +132,6 @@ public class NetworkMode extends UPMScreenMode{
 
 	public List<NetworkItemStackHelper> updateInventory() {
 		this.inv.clearContent();
-		this.numBlocks = 0;
 		final List<NetworkItemStackHelper> helpers = new ArrayList<>(Math.min(this.typeToHelpers.size(), 9*3));
 		if(!this.typeToHelpers.isEmpty()) {
 			int toSkip = Math.max(0, Math.round((this.getTotalRows()-3)*this.scrollBar)*9);
@@ -146,14 +145,14 @@ public class NetworkMode extends UPMScreenMode{
 							break;
 						final ItemStack stack = member.toStack();
 						this.inv.setItem(invIndex++, stack);
-						this.numBlocks += stack.getCount();
 						helpers.add(member);
 					}
 		}
 		return helpers;
 	}
 
-	private Multimap<MemberType, NetworkItemStackHelper> consolidateToItems(final EnergyNetwork network) {
+	private void consolidateToItems(final EnergyNetwork network) {
+		this.numBlocks = 0;
 		final Multimap<MemberType, NetworkItemStackHelper> type2Helpers = MultimapBuilder.enumKeys(MemberType.class).arrayListValues().build();
 		network.getMembers().forEach(member -> {
 			final Collection<NetworkItemStackHelper> helpers = type2Helpers.get(member.getType());
@@ -164,7 +163,8 @@ public class NetworkMode extends UPMScreenMode{
 			if(!added)
 				helpers.add(NetworkItemStackHelper.from(member, network.getLevel()));
 		});
-		return type2Helpers;
+		type2Helpers.values().forEach(stack -> this.numBlocks += stack.toStack().getCount());
+		this.typeToHelpers = type2Helpers;
 	}
 
 	@Override
