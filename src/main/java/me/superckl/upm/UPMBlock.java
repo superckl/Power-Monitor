@@ -35,10 +35,11 @@ public class UPMBlock extends HorizontalBlock{
 	public UPMTile createTileEntity(final BlockState state, final IBlockReader world) {
 		return new UPMTile();
 	}
-	
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
-	      return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
-	   }
+
+	@Override
+	public BlockState getStateForPlacement(final BlockItemUseContext context) {
+		return this.defaultBlockState().setValue(HorizontalBlock.FACING, context.getHorizontalDirection().getOpposite());
+	}
 
 	@Override
 	public ActionResultType use(final BlockState state, final World level, final BlockPos pos,
@@ -48,9 +49,9 @@ public class UPMBlock extends HorizontalBlock{
 					new OpenUPMScreenPacket(pos));
 		return ActionResultType.sidedSuccess(level.isClientSide);
 	}
-	
+
 	@Override
-	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(final Builder<Block, BlockState> builder) {
 		builder.add(HorizontalBlock.FACING);
 		super.createBlockStateDefinition(builder);
 	}
