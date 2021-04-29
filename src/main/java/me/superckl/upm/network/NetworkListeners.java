@@ -35,11 +35,9 @@ public class NetworkListeners {
 		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getLevel() == e.getWorld() && tile.getNetwork() != null).forEach(tile -> {
 			//For each loaded network, test if it contains any of the updated positions and rescan if so
 			final EnergyNetwork network = tile.getNetwork();
-			if(network.getMembers().stream().anyMatch(wrapped -> !Collections.disjoint(wrapped.getPositions().keySet(), updated))) {
-				network.scan();
-				tile.resetScanDelay();
-				tile.syncToClientLight(null);
-			}
+			if(updated.contains(tile.getBlockPos()) || network.getMembers().stream()
+					.anyMatch(wrapped -> !Collections.disjoint(wrapped.getPositions().keySet(), updated)))
+				network.scheduleScan();
 		});
 	}
 

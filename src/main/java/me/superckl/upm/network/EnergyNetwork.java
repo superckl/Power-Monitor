@@ -28,8 +28,11 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 
 	protected final UPMTile upm;
 	private NetworkCache networkCache;
+	private boolean scanScheduled;
 
-	public boolean scan() {
+	//This method is private to ensure it is only called when the network ticks
+	//at end of world ticking
+	private boolean scan() {
 		return this.updateMembers(NetworkUtil.scan(this.upm));
 	}
 
@@ -52,12 +55,17 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 	}
 
 	public void tick() {
-		if(!this.isValid()) {
+		if(this.scanScheduled || !this.isValid()) {
 			this.scan();
+			this.scanScheduled = false;
 			this.upm.resetScanDelay();
 			this.upm.syncToClientLight(null);
 		}
 		this.refreshEnergyStorage(true);
+	}
+
+	public void scheduleScan() {
+		this.scanScheduled = true;
 	}
 
 	private void refreshEnergyStorage(final boolean sync) {

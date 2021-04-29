@@ -1,8 +1,12 @@
 package me.superckl.upm.network.member.stack;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -13,17 +17,23 @@ import net.minecraft.world.World;
 
 public class MultiblockMember extends NetworkItemStackHelper{
 
-	private final WrappedNetworkMember member;
+	private final List<WrappedNetworkMember> members;
 	private final Reference2IntMap<Block> blocks;
 
 	private MultiblockMember(final WrappedNetworkMember member, final Reference2IntMap<Block> blocks) {
 		super(member.getType());
-		this.member = member;
+		this.members = Lists.newArrayList(member);
 		this.blocks = blocks;
 	}
 
 	@Override
 	public boolean add(final WrappedNetworkMember member, final World world) {
+		final List<Block> blocks = member.getPositions().keySet().stream().map(pos -> world.getBlockState(pos).getBlock()).collect(Collectors.toList());
+		if(blocks.stream().allMatch(this.blocks::containsKey)) {
+			blocks.forEach(block -> this.blocks.mergeInt(block, 1, Integer::sum));
+			this.members.add(member);
+			return true;
+		}
 		return false;
 	}
 
@@ -35,21 +45,16 @@ public class MultiblockMember extends NetworkItemStackHelper{
 	}
 
 	@Override
-	public boolean accepts(final WrappedNetworkMember member) {
-		return false;
-	}
-
-	@Override
 	public Collection<WrappedNetworkMember> getMembers() {
-		return ImmutableList.of(this.member);
+		return ImmutableList.copyOf(this.members);
 	}
 
-	public static MultiblockMember from(final WrappedNetworkMember member, final World world) {
+	public static Optional<MultiblockMember> from(final WrappedNetworkMember member, final World world) {
 		final Reference2IntMap<Block> blocks = new Reference2IntArrayMap<>();
 		member.getPositions().forEach((pos, dir) -> {
-			blocks.mergeInt(world.getBlockState(pos).getBlock(), 1, (val1, val2) -> val1+val2);
+			blocks.mergeInt(world.getBlockState(pos).getBlock(), 1, Integer::sum);
 		});
-		return new MultiblockMember(member, blocks);
+		return Optional.of(new MultiblockMember(member, blocks));
 	}
 
 }

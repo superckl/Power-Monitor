@@ -94,7 +94,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 						new UPMScanStatePacket(this.worldPosition, true));
 		}else if(this.scanTicks <= 0 && this.scanRequested)
 			this.scanNetwork();
-				
+
 	}
 
 	public EnergyNetwork getNetwork() {
@@ -128,11 +128,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			return;
 		if(this.network == null)
 			this.network = new EnergyNetwork(this);
-		if(this.network.scan()) {
-			this.setChanged();
-			this.syncToClientLight(null);
-		}
-		this.resetScanDelay();
+		this.network.scheduleScan();
 		this.scanRequested = false;
 	}
 

@@ -1,9 +1,11 @@
 package me.superckl.upm.network.member.stack;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import lombok.Getter;
 import me.superckl.upm.network.member.WrappedNetworkMember;
@@ -13,38 +15,38 @@ import net.minecraft.world.World;
 
 public class SimpleMemberList extends NetworkItemStackHelper{
 
+	@Getter
 	private final Block block;
 	@Getter
-	private final List<WrappedNetworkMember> members;
+	private final Set<WrappedNetworkMember> members = Collections.newSetFromMap(new IdentityHashMap<>());
 
 	protected SimpleMemberList(final Block block, final WrappedNetworkMember member) {
 		super(member.getType());
 		this.block = block;
-		this.members = Lists.newArrayList(member);
+		this.members.add(member);
 	}
 
 	@Override
 	public boolean add(final WrappedNetworkMember member, final World world) {
-		if(member.getPositions().size() == 1 && world.getBlockState(Iterables.getOnlyElement(member.getPositions().keySet())).getBlock() == this.block) {
-			this.members.add(member);
+		final Optional<SimpleMemberList> simple = SimpleMemberList.from(member, world).filter(list -> list.block == this.block);
+		if(simple.isPresent()) {
+			this.members.addAll(simple.get().members);
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public boolean accepts(final WrappedNetworkMember member) {
-		return member.getPositions().size() == 1 && super.accepts(member);
-	}
-
-	@Override
 	public ItemStack toStack() {
-		return new ItemStack(this.block.asItem(), this.members.size());
+		return new ItemStack(this.block.asItem(), this.members.stream().mapToInt(member -> member.getPositions().size()).sum());
 	}
 
-	public static SimpleMemberList from(final WrappedNetworkMember member, final World world) {
-		final Block block = world.getBlockState(Iterables.getOnlyElement(member.getPositions().keySet())).getBlock();
-		return new SimpleMemberList(block, member);
+	public static Optional<SimpleMemberList> from(final WrappedNetworkMember member, final World world) {
+		final Set<Block> blocks = Collections.newSetFromMap(new IdentityHashMap<>());
+		member.getPositions().keySet().forEach(pos -> blocks.add(world.getBlockState(pos).getBlock()));
+		if(blocks.size() == 1)
+			return Optional.of(new SimpleMemberList(Iterables.getOnlyElement(blocks), member));
+		return Optional.empty();
 	}
 
 }

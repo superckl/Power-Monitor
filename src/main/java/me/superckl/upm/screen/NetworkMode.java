@@ -161,7 +161,8 @@ public class NetworkMode extends UPMScreenMode{
 				if(helper.accepts(member) && helper.add(member, network.getLevel()))
 					added = true;
 			if(!added)
-				helpers.add(NetworkItemStackHelper.from(member, network.getLevel()));
+				helpers.add(NetworkItemStackHelper.from(member, network.getLevel())
+						.orElseThrow(() -> new IllegalStateException("Network member "+member+" could not be resolved to an item")));
 		});
 		type2Helpers.values().forEach(stack -> this.numBlocks += stack.toStack().getCount());
 		this.typeToHelpers = type2Helpers;

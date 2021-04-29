@@ -1,6 +1,7 @@
 package me.superckl.upm.network.member.stack;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import me.superckl.upm.network.member.MemberType;
@@ -37,9 +38,10 @@ public abstract class NetworkItemStackHelper {
 
 	public abstract Collection<WrappedNetworkMember> getMembers();
 
-	public static NetworkItemStackHelper from(final WrappedNetworkMember member, final World world) {
-		if(member.getPositions().size() == 1)
-			return SimpleMemberList.from(member, world);
+	public static Optional<? extends NetworkItemStackHelper> from(final WrappedNetworkMember member, final World world) {
+		final Optional<SimpleMemberList> simple =  SimpleMemberList.from(member, world);
+		if(simple.isPresent())
+			return simple;
 		return MultiblockMember.from(member, world);
 	}
 
