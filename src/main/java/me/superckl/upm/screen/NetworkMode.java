@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.lwjgl.glfw.GLFW;
@@ -14,6 +15,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import me.superckl.upm.ClientHelper;
+import me.superckl.upm.ModRegisters;
 import me.superckl.upm.UPM;
 import me.superckl.upm.network.EnergyNetwork;
 import me.superckl.upm.network.member.MemberType;
@@ -24,12 +27,14 @@ import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.util.NumberUtil;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -66,6 +71,10 @@ public class NetworkMode extends UPMScreenMode{
 	private double scrollBarRelY;
 
 	private int numBlocks;
+
+	private final ItemStack upmIcon = new ItemStack(ModRegisters.UPM_ITEM::get);
+	private final ItemStack redstoneIcon = new ItemStack(Items.REDSTONE);
+	private final ItemRenderer itemRenderer = ClientHelper.getItemRenderer();
 
 	@Override
 	public void init() {
@@ -171,7 +180,10 @@ public class NetworkMode extends UPMScreenMode{
 	@Override
 	public void renderBackground(final MatrixStack stack, final int mouseX, final int mouseY) {
 		this.screen.getMinecraft().getTextureManager().bind(NetworkMode.BACKGROUND);
+
+		this.screen.blit(stack, this.screen.getGuiLeft()-23, this.screen.getGuiTop()+28, 195, 15, 29, 28);
 		this.screen.blit(stack, this.screen.getGuiLeft(), this.screen.getGuiTop(), 0, 0, this.getWidth(), this.getHeight());
+		this.screen.blit(stack, this.screen.getGuiLeft()-25, this.screen.getGuiTop(), 195, 43, 29, 28);
 
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+20, 0, 195, 80, 12);
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+35, 0, 195, 80, 12);
@@ -202,6 +214,12 @@ public class NetworkMode extends UPMScreenMode{
 		storage = network.getStorage(MemberType.GENERATOR);
 		percentage = storage == 0 ? 0:(double)network.getStored(MemberType.GENERATOR)/storage;
 		this.screen.blit(stack, this.screen.getGuiLeft()+NetworkMode.WIDTH-80-8, this.screen.getGuiTop()+80, 0, 183, (int) Math.round(80*percentage), 12);
+
+		this.itemRenderer.renderAndDecorateItem(this.upmIcon, this.screen.getGuiLeft()-18, this.screen.getGuiTop()+6);
+		this.itemRenderer.renderGuiItemDecorations(this.screen.getFont(), this.upmIcon, this.screen.getGuiLeft()-18, this.screen.getGuiTop()+6);
+
+		this.itemRenderer.renderAndDecorateItem(this.redstoneIcon, this.screen.getGuiLeft()-18, this.screen.getGuiTop()+34);
+		this.itemRenderer.renderGuiItemDecorations(this.screen.getFont(), this.redstoneIcon, this.screen.getGuiLeft()-18, this.screen.getGuiTop()+34);
 	}
 
 	@Override
@@ -211,8 +229,13 @@ public class NetworkMode extends UPMScreenMode{
 			this.screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);
 		else if(this.isOverConfigChanged(mouseX, mouseY))
 			this.screen.renderTooltip(stack, new TranslationTextComponent(NetworkMode.RESCAN_SAVE_ID).withStyle(TextFormatting.RED), mouseX, mouseY);
-		else
-			super.renderTooltip(stack, mouseX, mouseY);
+		else {
+			final Optional<UPMScreenModeType> hoveredTab = this.getHoveredTab(mouseX, mouseY);
+			if(hoveredTab.isPresent())
+				this.screen.renderTooltip(stack, hoveredTab.get().getTabHover(), mouseX, mouseY);
+			else
+				super.renderTooltip(stack, mouseX, mouseY);
+		}
 	}
 
 	@Override
@@ -278,6 +301,11 @@ public class NetworkMode extends UPMScreenMode{
 			this.scrolling = true;
 			return true;
 		}
+		final Optional<UPMScreenModeType> hoveredTab = this.getHoveredTab(mouseX, mouseY).filter(tab -> tab != this.getType());
+		if(hoveredTab.isPresent()) {
+			this.screen.changeMode(hoveredTab.get());
+			return true;
+		}
 		return super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
@@ -325,6 +353,16 @@ public class NetworkMode extends UPMScreenMode{
 		final int scrollBarX = this.screen.getGuiLeft()+175;
 		final int scrollBarY = this.screen.getGuiTop()+123+Math.round((52-15)*this.scrollBar);
 		return mouseX >= scrollBarX && mouseX < scrollBarX + 12 && mouseY >= scrollBarY && mouseY < scrollBarY+15;
+	}
+
+	public Optional<UPMScreenModeType> getHoveredTab(double mouseX, double mouseY){
+		mouseX -= this.screen.getGuiLeft();
+		mouseY -= this.screen.getGuiTop();
+		if(mouseY >= 0 && mouseY < 28 && mouseX < 2 && mouseX >= -25)
+			return Optional.of(UPMScreenModeType.NETWORK);
+		if(mouseY >= 28 && mouseY < 56 && mouseX < 0 && mouseX >= -24)
+			return Optional.of(UPMScreenModeType.REDSTONE);
+		return Optional.empty();
 	}
 
 	private List<ITextComponent> tooltipForBarHover(final int mouseX, final int mouseY){

@@ -6,6 +6,7 @@ import me.superckl.upm.ClientHelper;
 import me.superckl.upm.UPM;
 import me.superckl.upm.UPMTile;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -44,8 +45,19 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 		return super.addButton(button);
 	}
 
+	@Override
+	public <T extends IGuiEventListener> T addWidget(final T widget) {
+		return super.addWidget(widget);
+	}
+
 	public Slot getHoveredSlot() {
 		return this.hoveredSlot;
+	}
+
+	public void changeMode(final UPMScreenModeType type) {
+		final UPMScreenMode mode = type.buildMode();
+		ClientHelper.getMinecraft().setScreen(new UPMScreen(new UPMClientSideContainer(this.menu.getOwner()),
+				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode));
 	}
 
 	public void onNetworkChanged(final UPMTile tile) {
@@ -60,6 +72,7 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 	@Override
 	public void render(final MatrixStack stack, final int mouseX, final int mouseY, final float partial) {
 		super.render(stack, mouseX, mouseY, partial);
+		this.mode.renderWidgets(stack, mouseX, mouseY, partial);
 		this.renderTooltip(stack, mouseX, mouseY);
 	}
 
@@ -110,7 +123,14 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 
 	@Override
 	public boolean mouseDragged(final double newX, final double newY, final int button, final double deltaX, final double deltaY) {
-		return this.mode.mouseDragged(newX, newY, button, deltaX, deltaY) || super.mouseDragged(newX, newY, button, deltaX, deltaY);
+		return this.mode.mouseDragged(newX, newY, button, deltaX, deltaY) || this.nestedGUIMouseDragged(newX, newY, button, deltaX, deltaY) || super.mouseDragged(newX, newY, button, deltaX, deltaY);
+	}
+
+	/**
+	 * Container screen is dumb and doesn't call super.mouseDragged, so we have to manually notify any widgets
+	 */
+	private boolean nestedGUIMouseDragged(final double newX, final double newY, final int button, final double deltaX, final double deltaY) {
+		return this.getFocused() != null && this.isDragging() && button == 0 ? this.getFocused().mouseDragged(newX, newY, button, deltaX, deltaY) : false;
 	}
 
 	@Override

@@ -20,6 +20,7 @@ public abstract class UPMScreenMode {
 
 	public void init() {}
 	public void renderBackground(final MatrixStack stack, final int mouseX, final int mouseY) {}
+	public void renderWidgets(final MatrixStack stack, final int mouseX, final int mouseY, final float partial) {}
 	public void renderLabels(final MatrixStack stack, final int mouseX, final int mouseY) {}
 	public void initSlots(final UPMClientSideContainer clientContainer) {}
 	public void slotClicked(final Slot slot, final int mouseX, final int mouseY, final ClickType type) {}

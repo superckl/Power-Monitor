@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import lombok.Getter;
 import me.superckl.upm.network.EnergyNetwork;
+import me.superckl.upm.network.UPMRedstoneConfiguration;
 import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UPMScanStatePacket;
@@ -55,6 +56,11 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	private boolean scanRequested;
 
 	@Getter
+	private final UPMRedstoneConfiguration redstoneConfig = new UPMRedstoneConfiguration();
+	@Getter
+	private boolean redstoneOutput = false;
+
+	@Getter
 	private final Map<TileEntityType<?>, MemberType> typeOverrides = new IdentityHashMap<>();
 
 	public UPMTile() {
@@ -94,7 +100,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 						new UPMScanStatePacket(this.worldPosition, true));
 		}else if(this.scanTicks <= 0 && this.scanRequested)
 			this.scanNetwork();
-
+		this.checkRedstone();
 	}
 
 	public EnergyNetwork getNetwork() {
@@ -130,6 +136,21 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			this.network = new EnergyNetwork(this);
 		this.network.scheduleScan();
 		this.scanRequested = false;
+	}
+
+	public void setRedstoneConfig(final UPMRedstoneConfiguration config) {
+		this.redstoneConfig.copyFrom(config);
+		this.checkRedstone();
+	}
+
+	private void checkRedstone() {
+		if(this.network != null) {
+			final boolean shouldOutput = this.redstoneConfig.shouldOutput(this.network, this.redstoneOutput);
+			if(shouldOutput != this.redstoneOutput) {
+				this.redstoneOutput = shouldOutput;
+				this.level.updateNeighborsAt(this.worldPosition, this.level.getBlockState(this.worldPosition).getBlock());
+			}
+		}
 	}
 
 	public void resetScanDelay() {
@@ -180,6 +201,8 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 	public static final String DELAY_KEY = "delay";
 	public static final String TYPE_OVERRIDE_KEY = "overrides";
 	public static final String SCAN_STATE_KEY = "scan";
+	public static final String REDSTONE_CONFIG_KEY = "redstone";
+	public static final String REDSTONE_STATE_KEY = "redstone_output";
 
 	@Override
 	public SUpdateTileEntityPacket getUpdatePacket() {
@@ -214,6 +237,8 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			this.typeOverrides.forEach((loc, type) -> typeOverrides.putString(loc.getRegistryName().toString(), type.name()));
 			data.put(UPMTile.TYPE_OVERRIDE_KEY, typeOverrides);
 		}
+		data.put(UPMTile.REDSTONE_CONFIG_KEY, this.redstoneConfig.serializeNBT());
+		data.putBoolean(UPMTile.REDSTONE_STATE_KEY, this.redstoneOutput);
 		nbt.put(UPM.MOD_ID, data);
 		return super.save(nbt);
 	}
@@ -230,6 +255,8 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			this.typeOverrides.clear();
 			typeOverrides.getAllKeys().forEach(loc -> this.typeOverrides.put(ForgeRegistries.TILE_ENTITIES.getValue(new ResourceLocation(loc)), MemberType.valueOf(typeOverrides.getString(loc))));
 		}
+		this.redstoneConfig.deserializeNBT(data.getCompound(UPMTile.REDSTONE_CONFIG_KEY));
+		this.redstoneOutput = data.getBoolean(UPMTile.REDSTONE_STATE_KEY);
 		super.load(state, nbt);
 	}
 

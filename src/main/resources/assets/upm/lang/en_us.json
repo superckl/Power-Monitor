@@ -12,5 +12,15 @@
   "gui.upm.scan_delay": "Please wait for scan cooldown...",
   "gui.upm.config_changed": "Config changed!",
   "gui.upm.rescan_save": "Rescan to save changes",
+  "gui.upm.tab.network": "Power Monitor",
+  "gui.upm.tab.redstone": "Redstone Configuration",
+  "gui.upm.redstone_types": "Considered types:",
+  "gui.upm.redstone_none": "None",
+  "gui.upm.redstone_thresholds": "Thresholds:",
+  "gui.upm.redstone_thresholds.upper": "Upper:",
+  "gui.upm.redstone_thresholds.lower": "Lower:",
+  "gui.upm.redstone_mode": "Redstone is %s",
+  "gui.upm.redstone_on": "on",
+  "gui.upm.redstone_off": "off",
   "block.upm.upm": "Universal Power Monitor"
 }

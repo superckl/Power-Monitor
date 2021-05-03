@@ -12,7 +12,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -39,6 +41,27 @@ public class UPMBlock extends HorizontalBlock{
 	@Override
 	public BlockState getStateForPlacement(final BlockItemUseContext context) {
 		return this.defaultBlockState().setValue(HorizontalBlock.FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	@Override
+	public int getSignal(final BlockState state, final IBlockReader level, final BlockPos position, final Direction direction) {
+		final Direction facing = state.getValue(HorizontalBlock.FACING);
+		if(direction != facing)
+			return 0;
+		final TileEntity te = level.getBlockEntity(position);
+		if(te instanceof UPMTile && ((UPMTile)te).isRedstoneOutput())
+			return 15;
+		return 0;
+	}
+
+	@Override
+	public int getDirectSignal(final BlockState state, final IBlockReader level, final BlockPos position, final Direction direction) {
+		return state.getSignal(level, position, direction);
+	}
+
+	@Override
+	public boolean isSignalSource(final BlockState state) {
+		return true;
 	}
 
 	@Override

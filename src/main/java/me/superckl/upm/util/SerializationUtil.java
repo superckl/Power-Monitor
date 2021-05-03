@@ -1,6 +1,7 @@
 package me.superckl.upm.util;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,6 +54,33 @@ public class SerializationUtil {
 		for(int i = 0; i < keys.size(); i++)
 			map.put(keyDeserializer.apply(keys.get(i)), valueDeserializer.apply(values.get(i)));
 		return map;
+	}
+
+	public static <T> ListNBT writeSet(final Set<? extends T> set, final Function<T, ? extends INBT> elementSerializer) {
+		final ListNBT list = new ListNBT();
+		set.forEach(element -> list.add(elementSerializer.apply(element)));
+		return list;
+	}
+
+	public static <T, S extends Set<T>> S readSet(final ListNBT nbt, final Supplier<? extends S> setFactory,
+			final Function<INBT, ? extends T> elementDeserializer) {
+		final S set = setFactory.get();
+		nbt.forEach(inbt -> set.add(elementDeserializer.apply(inbt)));
+		return set;
+	}
+
+	public static <T> void writeSet(final Set<? extends T> set, final BiConsumer<PacketBuffer, T> elementSerializer, final PacketBuffer buffer) {
+		buffer.writeVarInt(set.size());
+		set.forEach(element -> elementSerializer.accept(buffer, element));
+	}
+
+	public static <T, S extends Set<T>> S readSet(final PacketBuffer buffer, final Supplier<? extends S> setFactory,
+			final Function<PacketBuffer, ? extends T> elementDeserializer) {
+		final S set = setFactory.get();
+		final int numElem = buffer.readVarInt();
+		for(int i = 0; i < numElem; i++)
+			set.add(elementDeserializer.apply(buffer));
+		return set;
 	}
 
 }
