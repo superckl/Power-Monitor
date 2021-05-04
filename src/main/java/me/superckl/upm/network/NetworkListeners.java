@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -44,7 +45,7 @@ public class NetworkListeners {
 	/**
 	 * Event listener to tick loaded networks once world ticking is done
 	 */
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOW)
 	public void onWorldTick(final WorldTickEvent e) {
 		if(e.side == LogicalSide.SERVER && e.phase == Phase.END)
 			UPMTile.LOADED_TILES.forEach(tile -> {

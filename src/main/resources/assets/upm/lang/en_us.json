@@ -22,5 +22,6 @@
   "gui.upm.redstone_mode": "Redstone is %s",
   "gui.upm.redstone_on": "on",
   "gui.upm.redstone_off": "off",
+  "gui.upm.multiple_blocks": "Multiple blocks!",
   "block.upm.upm": "Universal Power Monitor"
 }

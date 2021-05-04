@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.RequiredArgsConstructor;
+import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.network.member.NetworkMember;
@@ -116,18 +117,21 @@ public class NetworkUtil {
 				final LongList frozenStorage = new LongArrayList(consolidatedMembers.size());
 				members.forEach(member -> frozenStorage.add(member.getMember().getCurrentEnergy()));
 				//Attempt to insert or extract 1 FE
-				boolean wasInserted = true;
-				int inserted = wrapped.getMember().addEnergy(1);
-				if(inserted == 0) {
-					inserted = wrapped.getMember().removeEnergy(1);
-					wasInserted = false;
+				//Try extraction first so we don't magically create energy if we don't have to
+				//We'll try to restore the change, but sometimes providers are selectively read-only
+				boolean wasInserted = false;
+				int removed = wrapped.getMember().removeEnergy(1);
+				if(removed == 0) {
+					removed = wrapped.getMember().addEnergy(1);
+					wasInserted = true;
 				}
-				if(inserted != 0) {
+				if(removed != 0) {
 					//If the member changed, loop over the remaining members to check for changes
 					final Iterator<WrappedNetworkMember> it = members.iterator();
 					int i = 0;
 					while(it.hasNext()) {
 						final WrappedNetworkMember test = it.next();
+						LogHelper.info(test.getMember().getCurrentEnergy());
 						if(test.getMember().getCurrentEnergy() != frozenStorage.getLong(i++)) {
 							//Looks like this changed and is thus "the same as" member, merge the members
 							//and remove test
@@ -137,9 +141,9 @@ public class NetworkUtil {
 					}
 					//Undo the insertion or extraction
 					if(wasInserted)
-						wrapped.getMember().removeEnergy(inserted);
+						wrapped.getMember().removeEnergy(removed);
 					else
-						wrapped.getMember().addEnergy(inserted);
+						wrapped.getMember().addEnergy(removed);
 				}
 			}
 			//We're done checking this member, so add it to the consolidated list

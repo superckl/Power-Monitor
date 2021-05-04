@@ -25,6 +25,7 @@ import me.superckl.upm.network.member.stack.NetworkItemStackHelper;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.util.NumberUtil;
+import me.superckl.upm.util.SlotChangeTimer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -51,19 +52,29 @@ public class NetworkMode extends UPMScreenMode{
 	public static final int WIDTH = 195;
 	public static final int HEIGHT = 183;
 
-	public static final String STORED_TOTAL_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "total_energy"));
-	public static final String STORED_STORAGE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "storage_energy"));
-	public static final String STORED_CABLE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "cable_energy"));
-	public static final String STORED_MACHINE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "machine_energy"));
-	public static final String STORED_GENERATOR_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "generator_energy"));
+	private final TranslationTextComponent totalText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "total_energy")));
+	private final TranslationTextComponent storageText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "storage_energy")));
+	private final TranslationTextComponent cableText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "cable_energy")));
+	private final TranslationTextComponent machineText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "machine_energy")));
+	private final TranslationTextComponent generatorText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "generator_energy")));
 
 	public static final String CONNECTED_BLOCKS_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "connected_blocks"));
 
-	public static final String CONFIG_CHANGED_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "config_changed"));
-	public static final String RESCAN_SAVE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "rescan_save"));
+	private final IFormattableTextComponent configChangedText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "config_changed"))).withStyle(TextFormatting.DARK_RED);
+	private static final IFormattableTextComponent rescanSaveText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "rescan_save"))).withStyle(TextFormatting.RED);
+	private final IFormattableTextComponent multipleTypesText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPM.MOD_ID, "multiple_blocks"))).withStyle(TextFormatting.RED);
 
-	private final UnlimitedInventory inv = new UnlimitedInventory(9*3);
+	private final Inventory slotInv = new Inventory(9*3);
 	private Multimap<MemberType, NetworkItemStackHelper> typeToHelpers;
+	private List<NetworkItemStackHelper> slotToHelpers;
 
 	private Button scanButton;
 	private float scrollBar;
@@ -118,46 +129,43 @@ public class NetworkMode extends UPMScreenMode{
 	public void initSlots(final UPMClientSideContainer container) {
 		this.consolidateToItems(this.getNetwork());
 		if(!this.typeToHelpers.isEmpty()) {
-			final List<NetworkItemStackHelper> helpers = this.updateInventory();
+			this.updateInventory();
 			final int startX = 9;
 			final int startY = 123;
 			for (int i = 0; i < 9; i++)
 				for (int j = 0; j < 3; j++) {
 					final int index = j*9+i;
-					final NetworkItemStackHelper member = index < helpers.size() ? helpers.get(index):null;
-					container.addSlot(new NetworkBlockSlot(this.inv, index, startX+i*18, startY+j*18, member));
+					final NetworkItemStackHelper member = index < this.slotToHelpers.size() ? this.slotToHelpers.get(index):null;
+					container.addSlot(new NetworkBlockSlot(this.slotInv, index, startX+i*18, startY+j*18, member));
 				}
 		}
 	}
 
 	public void updateInventoryAndSlots() {
-		final List<NetworkItemStackHelper> helpers = this.updateInventory();
+		this.updateInventory();
 		for (final Slot slot:this.screen.getMenu().slots)
 			if(slot instanceof NetworkBlockSlot) {
-				final NetworkItemStackHelper helper = slot.getSlotIndex() < helpers.size() ? helpers.get(slot.getSlotIndex()):null;
+				final NetworkItemStackHelper helper = slot.getSlotIndex() < this.slotToHelpers.size() ? this.slotToHelpers.get(slot.getSlotIndex()):null;
 				((NetworkBlockSlot)slot).setMember(helper);
 			}
 	}
 
-	public List<NetworkItemStackHelper> updateInventory() {
-		this.inv.clearContent();
+	public void updateInventory() {
 		final List<NetworkItemStackHelper> helpers = new ArrayList<>(Math.min(this.typeToHelpers.size(), 9*3));
 		if(!this.typeToHelpers.isEmpty()) {
 			int toSkip = Math.max(0, Math.round((this.getTotalRows()-3)*this.scrollBar)*9);
 			int invIndex = 0;
 			for(final MemberType type:MemberType.values())
-				if(invIndex < this.inv.getContainerSize())
+				if(invIndex < this.slotInv.getContainerSize())
 					for(final NetworkItemStackHelper member:this.typeToHelpers.get(type)) {
 						if(toSkip-- > 0)
 							continue;
-						if(invIndex >= this.inv.getContainerSize())
+						if(invIndex++ >= this.slotInv.getContainerSize())
 							break;
-						final ItemStack stack = member.toStack();
-						this.inv.setItem(invIndex++, stack);
 						helpers.add(member);
 					}
 		}
-		return helpers;
+		this.slotToHelpers = helpers;
 	}
 
 	private void consolidateToItems(final EnergyNetwork network) {
@@ -173,7 +181,7 @@ public class NetworkMode extends UPMScreenMode{
 				helpers.add(NetworkItemStackHelper.from(member, network.getLevel())
 						.orElseThrow(() -> new IllegalStateException("Network member "+member+" could not be resolved to an item")));
 		});
-		type2Helpers.values().forEach(stack -> this.numBlocks += stack.toStack().getCount());
+		type2Helpers.values().forEach(stack -> this.numBlocks += stack.toStacks().stream().mapToInt(ItemStack::getCount).sum());
 		this.typeToHelpers = type2Helpers;
 	}
 
@@ -228,7 +236,7 @@ public class NetworkMode extends UPMScreenMode{
 		if(tooltip != null)
 			this.screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);
 		else if(this.isOverConfigChanged(mouseX, mouseY))
-			this.screen.renderTooltip(stack, new TranslationTextComponent(NetworkMode.RESCAN_SAVE_ID).withStyle(TextFormatting.RED), mouseX, mouseY);
+			this.screen.renderTooltip(stack, NetworkMode.rescanSaveText, mouseX, mouseY);
 		else {
 			final Optional<UPMScreenModeType> hoveredTab = this.getHoveredTab(mouseX, mouseY);
 			if(hoveredTab.isPresent())
@@ -246,11 +254,11 @@ public class NetworkMode extends UPMScreenMode{
 		final int black = TextFormatting.BLACK.getColor();
 		font.draw(stack, connectedBlocks, 8, 123-font.lineHeight-2, black);
 
-		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_TOTAL_ID), 8, 21.5F, black);
-		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_STORAGE_ID), 14, 36.5F, black);
-		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_CABLE_ID), 14, 51.5F, black);
-		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_MACHINE_ID), 14, 66.5F, black);
-		font.draw(stack, new TranslationTextComponent(NetworkMode.STORED_GENERATOR_ID), 14, 81.5F, black);
+		font.draw(stack, this.totalText, 8, 21.5F, black);
+		font.draw(stack, this.storageText, 14, 36.5F, black);
+		font.draw(stack, this.cableText, 14, 51.5F, black);
+		font.draw(stack, this.machineText, 14, 66.5F, black);
+		font.draw(stack, this.generatorText, 14, 81.5F, black);
 
 		final EnergyNetwork network = this.getNetwork();
 		this.renderGainIndicator(network.deltaTotalStored(), NetworkMode.WIDTH-80-15, 22F, stack);
@@ -260,7 +268,7 @@ public class NetworkMode extends UPMScreenMode{
 		this.renderGainIndicator(network.deltaStored(MemberType.GENERATOR), NetworkMode.WIDTH-80-15, 82F, stack);
 
 		if(this.hasTypeOverride())
-			font.draw(stack, new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID).withStyle(TextFormatting.DARK_RED), 8, 100, black);
+			font.draw(stack, this.configChangedText, 8, 100, black);
 	}
 
 	private boolean isOverConfigChanged(int mouseX, int mouseY) {
@@ -268,7 +276,7 @@ public class NetworkMode extends UPMScreenMode{
 			return false;
 		mouseX -= this.screen.getGuiLeft();
 		mouseY -= this.screen.getGuiTop();
-		final int width = this.screen.getFont().width(new TranslationTextComponent(NetworkMode.CONFIG_CHANGED_ID));
+		final int width = this.screen.getFont().width(this.configChangedText);
 		return mouseX >= 8 && mouseX < 8+width && mouseY >= 100 && mouseY < 100+this.screen.getFont().lineHeight;
 	}
 
@@ -342,7 +350,7 @@ public class NetworkMode extends UPMScreenMode{
 	}
 
 	private boolean needsScrollBars() {
-		return this.typeToHelpers != null && this.typeToHelpers.size() > this.inv.getContainerSize();
+		return this.typeToHelpers != null && this.typeToHelpers.size() > this.slotInv.getContainerSize();
 	}
 
 	private int getTotalRows() {
@@ -429,8 +437,10 @@ public class NetworkMode extends UPMScreenMode{
 		if(slot instanceof NetworkBlockSlot && ((NetworkBlockSlot)slot).member != null) {
 			final MemberType type = ((NetworkBlockSlot)slot).getType();
 			tooltip.add(new StringTextComponent(type.name()).withStyle(type.color()));
+			if(((NetworkBlockSlot)slot).hasMultipleItems())
+				tooltip.add(this.multipleTypesText);
 			if(((NetworkBlockSlot)slot).isTypeChanged())
-				tooltip.add(new TranslationTextComponent(NetworkMode.RESCAN_SAVE_ID).withStyle(TextFormatting.RED));
+				tooltip.add(NetworkMode.rescanSaveText);
 			if(this.screen.getMinecraft().options.advancedItemTooltips) {
 				final Set<TileEntityType<?>> tileTypes = Collections.newSetFromMap(new IdentityHashMap<>());
 				((NetworkBlockSlot)slot).member.getMembers().forEach(wrapped -> tileTypes.addAll(wrapped.getTileTypes()));
@@ -466,10 +476,19 @@ public class NetworkMode extends UPMScreenMode{
 
 		private NetworkItemStackHelper member;
 		private MemberType type;
+		private List<ItemStack> stacks;
+		private SlotChangeTimer timer;
 
 		public NetworkBlockSlot(final IInventory inv, final int slot, final int x, final int y, final NetworkItemStackHelper member) {
 			super(inv, slot, x, y);
 			this.setMember(member);
+		}
+
+		@Override
+		public ItemStack getItem() {
+			if(this.member == null)
+				return ItemStack.EMPTY;
+			return this.stacks.get(this.timer.getValue());
 		}
 
 		@Override
@@ -494,6 +513,10 @@ public class NetworkMode extends UPMScreenMode{
 			return this.member != null && this.type != this.member.getType();
 		}
 
+		public boolean hasMultipleItems() {
+			return this.stacks != null && this.stacks.size() > 1;
+		}
+
 		public Collection<WrappedNetworkMember> getMembers(){
 			return this.member == null ? Collections.emptyList():this.member.getMembers();
 		}
@@ -501,6 +524,11 @@ public class NetworkMode extends UPMScreenMode{
 		public void setMember(final NetworkItemStackHelper member) {
 			this.member = member;
 			this.type = this.member == null ? MemberType.UNKNOWN:this.member.getType();
+			if(member != null) {
+				this.stacks = member.toStacks();
+				this.timer = new SlotChangeTimer(member.toStacks().size(), 1800);
+			}
+
 		}
 
 	}

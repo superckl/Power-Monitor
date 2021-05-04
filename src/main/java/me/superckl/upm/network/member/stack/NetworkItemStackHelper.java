@@ -1,6 +1,7 @@
 package me.superckl.upm.network.member.stack;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public abstract class NetworkItemStackHelper {
 
 	public abstract boolean add(WrappedNetworkMember member, World world);
 
-	public abstract ItemStack toStack();
+	public abstract List<ItemStack> toStacks();
 
 	public abstract Collection<WrappedNetworkMember> getMembers();
 
