@@ -1,6 +1,7 @@
 package me.superckl.upm.network.member;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -8,6 +9,8 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 
 import lombok.Getter;
@@ -17,6 +20,7 @@ import me.superckl.upm.ModRegisters;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 
 @RequiredArgsConstructor
 public abstract class NetworkMember{
@@ -30,8 +34,11 @@ public abstract class NetworkMember{
 
 	public abstract long getCurrentEnergy();
 
-	public Direction[] childDirections() {
-		return Direction.values();
+	public Multimap<BlockPos, Direction> connectionsFrom(final TileEntity te){
+		final Multimap<BlockPos, Direction> map = MultimapBuilder.hashKeys(1).enumSetValues(Direction.class).build();
+		//default to just looking in all directions from this point
+		map.putAll(te.getBlockPos(), EnumSet.allOf(Direction.class));
+		return map;
 	}
 
 	public NetworkMember resolve(final Map<Direction, NetworkMember> sidedMembers, final TileEntity entity) {

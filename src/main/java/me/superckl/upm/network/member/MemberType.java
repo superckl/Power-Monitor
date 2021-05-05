@@ -14,7 +14,7 @@ public enum MemberType {
 
 	STORAGE(new ResourceLocation(UPM.MOD_ID, "storage"), TextFormatting.BLUE, true),
 	MACHINE(new ResourceLocation(UPM.MOD_ID, "machine"), TextFormatting.RED, false),
-	GENERATOR(new ResourceLocation(UPM.MOD_ID, "machine"), TextFormatting.GREEN, true),
+	GENERATOR(new ResourceLocation(UPM.MOD_ID, "generator"), TextFormatting.GREEN, true),
 	CABLE(new ResourceLocation(UPM.MOD_ID, "cable"), TextFormatting.YELLOW, true),
 	UNKNOWN(null, TextFormatting.GRAY, true);
 

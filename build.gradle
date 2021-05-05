@@ -59,9 +59,9 @@ dependencies {
     
     //IE currently has naming collisions with official mappings :(
     //Immersive Engineering
-    //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
-	//datagenCompile  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:datagen")
-    //runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
+    compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
+	datagenCompile  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:datagen")
+    runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

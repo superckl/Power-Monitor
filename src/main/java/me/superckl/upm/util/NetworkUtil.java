@@ -1,6 +1,7 @@
 package me.superckl.upm.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +22,6 @@ import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import lombok.RequiredArgsConstructor;
-import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.network.member.NetworkMember;
@@ -42,7 +42,7 @@ public class NetworkUtil {
 		final TraversalTracker tracker = new TraversalTracker(upm.getTypeOverrides());
 
 		//List of tile entities to check. Originally populated with all connected neighbors of the UPM
-		Map<TileEntity, Pair<NetworkMember, Direction>> toCheck = NetworkUtil.getConnectedNeighbors(upm, upm.getBlockPos(), Direction.values(), tracker);
+		Map<TileEntity, Pair<NetworkMember, Direction>> toCheck = NetworkUtil.getConnectedNeighbors(upm.getLevel(), upm.getBlockPos(), Direction.values(), tracker);
 		while(!toCheck.isEmpty()) {
 			final Map<TileEntity, Pair<NetworkMember, Direction>> toCheckTemp = new IdentityHashMap<>();
 			toCheck.forEach((te, member) -> {
@@ -59,7 +59,10 @@ public class NetworkUtil {
 					tracker.typeOf(te).ifPresent(type -> wrapped.setType(type));
 					members.add(wrapped);
 				}
-				toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te, te.getBlockPos(), member.getLeft().childDirections(), tracker));
+				member.getKey().connectionsFrom(te).asMap().forEach((pos, dirs) -> {
+					toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te.getLevel(), pos, dirs.toArray(new Direction[dirs.size()]), tracker));
+				});
+				//toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te, te.getBlockPos(), member.getLeft().childDirections(), tracker));
 
 			});
 			toCheck = new IdentityHashMap<>(toCheckTemp);
@@ -71,7 +74,10 @@ public class NetworkUtil {
 		return NetworkUtil.injectionConsolidate(members);
 	}
 
-	public static Map<TileEntity, Pair<NetworkMember, Direction>> getConnectedNeighbors(final TileEntity originTE, final BlockPos pos, final Direction[] dirs, final TraversalTracker tracker){
+	public static Map<TileEntity, Pair<NetworkMember, Direction>> getConnectedNeighbors(final World level, final BlockPos pos, final Direction[] dirs, final TraversalTracker tracker){
+		final TileEntity originTE = level.getBlockEntity(pos);
+		if(originTE == null)
+			return Collections.emptyMap();
 		final Map<Direction, NetworkMember> originMembers = new EnumMap<>(Direction.class);
 		for(final Direction dir:dirs)
 			NetworkMember.from(originTE, dir).ifPresent(member -> {
@@ -131,7 +137,6 @@ public class NetworkUtil {
 					int i = 0;
 					while(it.hasNext()) {
 						final WrappedNetworkMember test = it.next();
-						LogHelper.info(test.getMember().getCurrentEnergy());
 						if(test.getMember().getCurrentEnergy() != frozenStorage.getLong(i++)) {
 							//Looks like this changed and is thus "the same as" member, merge the members
 							//and remove test

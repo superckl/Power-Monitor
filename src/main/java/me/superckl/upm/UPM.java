@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 
+import me.superckl.upm.integration.immersiveengineering.IEIntegration;
 import me.superckl.upm.network.NetworkListeners;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
@@ -13,6 +14,7 @@ import me.superckl.upm.packet.UPMScanStatePacket;
 import me.superckl.upm.packet.UpdateEnergyPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -33,6 +35,8 @@ public class UPM {
 		ModRegisters.RESOLVER_REGISTER.register(bus);
 
 		bus.addListener(this::commonSetup);
+		if(ModList.get().isLoaded("immersiveengineering"))
+			IEIntegration.onConstruction();
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent e) {
