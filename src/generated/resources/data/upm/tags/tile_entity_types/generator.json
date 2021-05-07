@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "mekanismgenerators:advanced_solar_generator",
+    "mekanismgenerators:bio_generator",
+    "mekanismgenerators:fission_reactor_port",
+    "mekanismgenerators:fusion_reactor_port",
+    "mekanismgenerators:gas_burning_generator",
+    "mekanismgenerators:heat_generator",
+    "mekanismgenerators:solar_generator",
+    "mekanismgenerators:wind_generator",
+    "immersiveengineering:dieselgenerator",
+    "immersiveengineering:dynamo",
+    "immersiveengineering:lightningrod",
+    "immersiveengineering:thermoelectricgen",
+    "thermal:dynamo_compression",
+    "thermal:dynamo_lapidary",
+    "thermal:dynamo_magmatic",
+    "thermal:dynamo_numismatic",
+    "thermal:dynamo_stirling"
+  ]
+}

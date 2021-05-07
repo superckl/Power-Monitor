@@ -19,12 +19,9 @@ public abstract class NetworkMemberResolver<T extends NetworkMember> extends For
 			public abstract int getPriority(TileEntity tile);
 
 			public MemberType typeFromTag(final TileEntityType<?> teType) {
-				if(teType.getTags().contains(MemberType.STORAGE.tag()))
-					return MemberType.STORAGE;
-				if(teType.getTags().contains(MemberType.CABLE.tag()))
-					return MemberType.CABLE;
-				if(teType.getTags().contains(MemberType.MACHINE.tag()))
-					return MemberType.MACHINE;
+				for(final MemberType type:MemberType.values())
+					if(type != MemberType.UNKNOWN && teType.getTags().contains(type.tag()))
+						return type;
 				return MemberType.UNKNOWN;
 			}
 

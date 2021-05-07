@@ -2,6 +2,7 @@
   "parent": "minecraft:block/cube_all",
   "textures": {
     "north": "upm:block/upm_front",
+    "south": "upm:block/upm_back",
     "all": "upm:block/upm_side"
   }
 }

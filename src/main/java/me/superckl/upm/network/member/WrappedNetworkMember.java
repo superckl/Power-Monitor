@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.Getter;
@@ -28,6 +30,7 @@ public class WrappedNetworkMember{
 	public static final String OVERRIDE_KEY = "override";
 	public static final String SIDES_KEY = "sides";
 
+	@Nonnull
 	private final NetworkMember member;
 	private final Map<BlockPos, Direction> positions;
 	private final List<TileEntityType<?>> tileTypes;

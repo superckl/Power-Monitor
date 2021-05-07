@@ -1,10 +1,20 @@
 package me.superckl.upm;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 
+import com.google.common.collect.ImmutableList;
+
+import lombok.Getter;
+import me.superckl.upm.data.TileTypeTagGenerator;
+import me.superckl.upm.integration.IntegrationModule;
 import me.superckl.upm.integration.immersiveengineering.IEIntegration;
+import me.superckl.upm.integration.mekanism.MekanismGeneratorsIntegration;
+import me.superckl.upm.integration.mekanism.MekanismIntegration;
+import me.superckl.upm.integration.thermal.ThermalIntegration;
 import me.superckl.upm.network.NetworkListeners;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
@@ -17,6 +27,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkDirection;
 
@@ -24,8 +35,13 @@ import net.minecraftforge.fml.network.NetworkDirection;
 public class UPM {
 
 	public static final String MOD_ID = "upm";
+	@Getter
+	private static UPM INSTANCE;
+	@Getter
+	private List<IntegrationModule> integrations;
 
 	public UPM() {
+		UPM.INSTANCE = this;
 		LogHelper.setLogger(LogManager.getFormatterLogger(UPM.MOD_ID));
 
 		final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -35,8 +51,8 @@ public class UPM {
 		ModRegisters.RESOLVER_REGISTER.register(bus);
 
 		bus.addListener(this::commonSetup);
-		if(ModList.get().isLoaded("immersiveengineering"))
-			IEIntegration.onConstruction();
+		bus.addListener(this::gatherData);
+		this.loadIntegrations();
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent e) {
@@ -52,6 +68,24 @@ public class UPM {
 				UPMScanStatePacket::decode, UPMScanStatePacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		UPMPacketHandler.INSTANCE.registerMessage(pIndex++, UPMRedstoneConfigPacket.class, UPMRedstoneConfigPacket::encode,
 				UPMRedstoneConfigPacket::decode, UPMRedstoneConfigPacket::handle);
+	}
+
+	private void gatherData(final GatherDataEvent e) {
+		e.getGenerator().addProvider(new TileTypeTagGenerator(e.getGenerator(), e.getExistingFileHelper()));
+	}
+
+	private void loadIntegrations() {
+		final List<IntegrationModule> modules = new ArrayList<>();
+		final ModList mods = ModList.get();
+		if(mods.isLoaded("mekanism"))
+			modules.add(new MekanismIntegration());
+		if(mods.isLoaded("mekanismgenerators"))
+			modules.add(new MekanismGeneratorsIntegration());
+		if(mods.isLoaded("immersiveengineering"))
+			modules.add(new IEIntegration());
+		if(mods.isLoaded("thermal_expansion"))
+			modules.add(new ThermalIntegration());
+		this.integrations = ImmutableList.copyOf(modules);
 	}
 
 }
