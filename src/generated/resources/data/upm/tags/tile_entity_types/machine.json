@@ -97,6 +97,8 @@
     "immersiveengineering:teslacoil",
     "immersiveengineering:turretchem",
     "immersiveengineering:turretgun",
+    "thermal:charge_bench",
+    "thermal:tinker_bench",
     "thermal:machine_bottler",
     "thermal:machine_brewer",
     "thermal:machine_centrifuge",

@@ -1,13 +1,12 @@
 package me.superckl.upm.integration.thermal;
 
-import cofh.thermal.core.init.TCoreReferences;
 import cofh.thermal.expansion.init.TExpReferences;
 import me.superckl.upm.integration.IntegrationModule;
 import me.superckl.upm.network.member.MemberType;
 import net.minecraft.data.TagsProvider;
 import net.minecraft.tileentity.TileEntityType;
 
-public class ThermalIntegration extends IntegrationModule{
+public class ThermalExpansionIntegration extends IntegrationModule{
 
 	@Override
 	public void addTETags(final TagsProvider.Builder<TileEntityType<?>> builder, final MemberType type) {
@@ -32,8 +31,7 @@ public class ThermalIntegration extends IntegrationModule{
 			builder.add(TExpReferences.DYNAMO_MAGMATIC_TILE);
 			builder.add(TExpReferences.DYNAMO_NUMISMATIC_TILE);
 			builder.add(TExpReferences.DYNAMO_STIRLING_TILE);
-		}else if(type == MemberType.STORAGE)
-			builder.add(TCoreReferences.ENERGY_CELL_TILE);
+		}
 	}
 
 }
