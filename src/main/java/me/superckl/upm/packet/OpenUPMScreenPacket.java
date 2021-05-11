@@ -26,8 +26,7 @@ public class OpenUPMScreenPacket {
 			supplier.get().enqueueWork(() -> {
 				final TileEntity te = ClientHelper.getLevel().getBlockEntity(this.tilePosition);
 				if(te instanceof UPMTile)
-					ClientHelper.getMinecraft().setScreen(UPMScreen.from((UPMTile) te));
-
+					UPMScreen.openFrom((UPMTile) te);
 			});
 		supplier.get().setPacketHandled(true);
 	}

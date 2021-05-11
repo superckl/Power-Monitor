@@ -84,6 +84,7 @@ public class IEFluxTileWrapper{
 	}
 
 	public static boolean matches(final TileEntity entity) {
+		//TODO need to consider a tile that's just a connector as well
 		return entity instanceof IFluxProvider || entity instanceof IFluxReceiver;
 	}
 

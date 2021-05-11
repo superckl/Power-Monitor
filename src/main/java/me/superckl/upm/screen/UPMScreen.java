@@ -62,7 +62,7 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 
 	public void onNetworkChanged(final UPMTile tile) {
 		if(this.menu.getOwner() == tile && this.mode.networkChanged(tile.getScreenType()))
-			this.minecraft.setScreen(UPMScreen.from(tile));
+			UPMScreen.openFrom(tile);
 	}
 
 	public void onScanStateChanged(final boolean state) {
@@ -143,10 +143,10 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 			ClientHelper.getMinecraft().setScreen(null);
 	}
 
-	public static UPMScreen from(final UPMTile tile) {
+	public static void openFrom(final UPMTile tile) {
 		final UPMScreenMode mode = tile.getScreenType().buildMode();
 		final UPMClientSideContainer container = new UPMClientSideContainer(tile);
-		return new UPMScreen(container, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode);
+		ClientHelper.openScreen(new UPMScreen(container, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode));
 	}
 
 	public Button newScanButton(final int x, final int y, final int width, final int height, final boolean rescan, final IPressable onPress) {
