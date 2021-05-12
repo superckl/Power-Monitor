@@ -73,6 +73,10 @@ dependencies {
     //Bigger Reactors
     runtimeOnly fg.deobf("curse.maven:biggerreactors-407780:3304030")
     runtimeOnly fg.deobf("curse.maven:phosphophyllite-412551:3276618")
+    
+    //Powah
+    runtimeOnly fg.deobf("curse.maven:powah-352656:3232535")
+    runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

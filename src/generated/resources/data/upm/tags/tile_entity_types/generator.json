@@ -76,6 +76,30 @@
     {
       "id": "biggerreactors:turbine_power_tap",
       "required": false
+    },
+    {
+      "id": "powah:reactor",
+      "required": false
+    },
+    {
+      "id": "powah:reactor_part",
+      "required": false
+    },
+    {
+      "id": "powah:solar_panel",
+      "required": false
+    },
+    {
+      "id": "powah:furnator",
+      "required": false
+    },
+    {
+      "id": "powah:magmator",
+      "required": false
+    },
+    {
+      "id": "powah:thermo_gen",
+      "required": false
     }
   ]
 }

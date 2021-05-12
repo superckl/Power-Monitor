@@ -52,6 +52,18 @@
     {
       "id": "immersiveengineering:lv_conn",
       "required": false
+    },
+    {
+      "id": "powah:ender_gate",
+      "required": false
+    },
+    {
+      "id": "powah:energy_cable",
+      "required": false
+    },
+    {
+      "id": "powah:energy_hopper",
+      "required": false
     }
   ]
 }

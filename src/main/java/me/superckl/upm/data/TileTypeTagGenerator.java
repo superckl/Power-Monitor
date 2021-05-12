@@ -32,6 +32,7 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			//Add some entries for mods with only a few tile entities to account for
 			this.addThermal(builder, type);
 			this.addBiggerReactors(builder, type);
+			this.addPowah(builder, type);
 
 			//IE is handled in its integration because it has a lot and uses a resolver
 			//Mekanism is handled in its integration because it has an inane amount of tiles
@@ -85,6 +86,37 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			break;
 		case MACHINE:
 			builder.addOptional(new ResourceLocation(reactorsName, "cyanite_reprocessor"));
+		default:
+			break;
+
+		}
+	}
+
+	private void addPowah(final Builder<TileEntityType<?>> builder, final MemberType type) {
+		final String powahName = "powah";
+		switch(type) {
+		case CABLE:
+			builder.addOptional(new ResourceLocation(powahName, "ender_gate"));
+			builder.addOptional(new ResourceLocation(powahName, "energy_cable"));
+			builder.addOptional(new ResourceLocation(powahName, "energy_hopper"));
+			break;
+		case STORAGE:
+			builder.addOptional(new ResourceLocation(powahName, "energy_cell"));
+			builder.addOptional(new ResourceLocation(powahName, "ender_cell"));
+			break;
+		case MACHINE:
+			builder.addOptional(new ResourceLocation(powahName, "energy_discharger"));
+			builder.addOptional(new ResourceLocation(powahName, "player_transmitter"));
+			builder.addOptional(new ResourceLocation(powahName, "energizing_rod"));
+			break;
+		case GENERATOR:
+			builder.addOptional(new ResourceLocation(powahName, "reactor"));
+			builder.addOptional(new ResourceLocation(powahName, "reactor_part"));
+			builder.addOptional(new ResourceLocation(powahName, "solar_panel"));
+			builder.addOptional(new ResourceLocation(powahName, "furnator"));
+			builder.addOptional(new ResourceLocation(powahName, "magmator"));
+			builder.addOptional(new ResourceLocation(powahName, "thermo_gen"));
+			break;
 		default:
 			break;
 

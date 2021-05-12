@@ -452,6 +452,18 @@
     {
       "id": "biggerreactors:cyanite_reprocessor",
       "required": false
+    },
+    {
+      "id": "powah:energy_discharger",
+      "required": false
+    },
+    {
+      "id": "powah:player_transmitter",
+      "required": false
+    },
+    {
+      "id": "powah:energizing_rod",
+      "required": false
     }
   ]
 }

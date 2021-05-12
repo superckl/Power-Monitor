@@ -40,6 +40,14 @@
     {
       "id": "thermal:energy_cell",
       "required": false
+    },
+    {
+      "id": "powah:energy_cell",
+      "required": false
+    },
+    {
+      "id": "powah:ender_cell",
+      "required": false
     }
   ]
 }
