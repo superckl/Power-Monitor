@@ -69,6 +69,10 @@ dependencies {
     //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
 	compile fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
     //runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
+    
+    //Bigger Reactors
+    runtimeOnly fg.deobf("curse.maven:biggerreactors-407780:3304030")
+    runtimeOnly fg.deobf("curse.maven:phosphophyllite-412551:3276618")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
