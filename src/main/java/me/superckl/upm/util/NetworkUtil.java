@@ -180,10 +180,16 @@ public class NetworkUtil {
 				//Try extraction first so we don't magically create energy if we don't have to
 				//We'll try to restore the change, but sometimes providers are selectively read-only
 				boolean wasInserted = false;
+				final long stored = wrapped.getMember().getCurrentEnergy();
 				int removed = wrapped.getMember().removeEnergy(1);
 				if(removed == 0) {
-					removed = wrapped.getMember().addEnergy(1);
+					removed = -wrapped.getMember().addEnergy(1);
 					wasInserted = true;
+				}
+				final long actual = stored-wrapped.getMember().getCurrentEnergy();
+				if(actual != removed) {
+					removed = (int) actual;
+					OneTimeWarnings.injectionCheckActual(wrapped.getMember().getTileEntity());
 				}
 				if(removed != 0) {
 					//If the member changed, loop over the remaining members to check for changes
@@ -200,7 +206,7 @@ public class NetworkUtil {
 					}
 					//Undo the insertion or extraction
 					if(wasInserted)
-						wrapped.getMember().removeEnergy(removed);
+						wrapped.getMember().removeEnergy(-removed);
 					else
 						wrapped.getMember().addEnergy(removed);
 				}
