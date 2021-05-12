@@ -81,7 +81,7 @@ if (build_number == null) {
 	build_number = '0'
 }
 
-version = version_major + "." + version_minor + "." + build_number
+version = minecraft_version + "-" + version_major + "." + version_minor + "." + build_number
 group= artifact_group
 archivesBaseName = artifact_basename
 
