@@ -1,117 +1,457 @@
 {
   "replace": false,
   "values": [
-    "mekanism:basic_combining_factory",
-    "mekanism:basic_compressing_factory",
-    "mekanism:basic_crushing_factory",
-    "mekanism:basic_enriching_factory",
-    "mekanism:basic_infusing_factory",
-    "mekanism:basic_injecting_factory",
-    "mekanism:basic_purifying_factory",
-    "mekanism:basic_sawing_factory",
-    "mekanism:basic_smelting_factory",
-    "mekanism:advanced_combining_factory",
-    "mekanism:advanced_compressing_factory",
-    "mekanism:advanced_crushing_factory",
-    "mekanism:advanced_enriching_factory",
-    "mekanism:advanced_infusing_factory",
-    "mekanism:advanced_injecting_factory",
-    "mekanism:advanced_purifying_factory",
-    "mekanism:advanced_sawing_factory",
-    "mekanism:advanced_smelting_factory",
-    "mekanism:elite_combining_factory",
-    "mekanism:elite_compressing_factory",
-    "mekanism:elite_crushing_factory",
-    "mekanism:elite_enriching_factory",
-    "mekanism:elite_infusing_factory",
-    "mekanism:elite_injecting_factory",
-    "mekanism:elite_purifying_factory",
-    "mekanism:elite_sawing_factory",
-    "mekanism:elite_smelting_factory",
-    "mekanism:ultimate_combining_factory",
-    "mekanism:ultimate_compressing_factory",
-    "mekanism:ultimate_crushing_factory",
-    "mekanism:ultimate_enriching_factory",
-    "mekanism:ultimate_infusing_factory",
-    "mekanism:ultimate_injecting_factory",
-    "mekanism:ultimate_purifying_factory",
-    "mekanism:ultimate_sawing_factory",
-    "mekanism:ultimate_smelting_factory",
-    "mekanism:chargepad",
-    "mekanism:chemical_crystallizer",
-    "mekanism:chemical_dissolution_chamber",
-    "mekanism:chemical_infuser",
-    "mekanism:chemical_injection_chamber",
-    "mekanism:chemical_oxidizer",
-    "mekanism:chemical_washer",
-    "mekanism:combiner",
-    "mekanism:crusher",
-    "mekanism:digital_miner",
-    "mekanism:electric_pump",
-    "mekanism:electrolytic_separator",
-    "mekanism:energized_smelter",
-    "mekanism:enrichment_chamber",
-    "mekanism:fluidic_plenisher",
-    "mekanism:formulaic_assemblicator",
-    "mekanism:laser",
-    "mekanism:laser_amplifier",
-    "mekanism:laser_tractor_beam",
-    "mekanism:metallurgic_infuser",
-    "mekanism:osmium_compressor",
-    "mekanism:precision_sawmill",
-    "mekanism:pressure_disperser",
-    "mekanism:pressurized_reaction_chamber",
-    "mekanism:purification_chamber",
-    "mekanism:quantum_entangloporter",
-    "mekanism:resistive_heater",
-    "mekanism:modification_station",
-    "mekanism:isotopic_centrifuge",
-    "mekanism:nutritional_liquifier",
-    "mekanism:rotary_condensentrator",
-    "mekanism:security_desk",
-    "mekanism:seismic_vibrator",
-    "mekanism:solar_neutron_activator",
-    "mekanism:superheating_element",
-    "mekanism:teleporter",
-    "mekanism:antiprotonic_nucleosynthesizer",
-    "immersiveengineering:alloysmelter",
-    "immersiveengineering:arcfurnace",
-    "immersiveengineering:assembler",
-    "immersiveengineering:autoworkbench",
-    "immersiveengineering:blastfurnacepreheater",
-    "immersiveengineering:bottlingmachine",
-    "immersiveengineering:chargingstation",
-    "immersiveengineering:cloche",
-    "immersiveengineering:crusher",
-    "immersiveengineering:electriclantern",
-    "immersiveengineering:excavator",
-    "immersiveengineering:fermenter",
-    "immersiveengineering:fluidpump",
-    "immersiveengineering:furnaceheater",
-    "immersiveengineering:metalpress",
-    "immersiveengineering:mixer",
-    "immersiveengineering:refinery",
-    "immersiveengineering:sampledrill",
-    "immersiveengineering:sawmill",
-    "immersiveengineering:squeezer",
-    "immersiveengineering:teslacoil",
-    "immersiveengineering:turretchem",
-    "immersiveengineering:turretgun",
-    "thermal:charge_bench",
-    "thermal:tinker_bench",
-    "thermal:machine_bottler",
-    "thermal:machine_brewer",
-    "thermal:machine_centrifuge",
-    "thermal:machine_chiller",
-    "thermal:machine_crafter",
-    "thermal:machine_crucible",
-    "thermal:machine_furnace",
-    "thermal:machine_insolator",
-    "thermal:machine_press",
-    "thermal:machine_pulverizer",
-    "thermal:machine_pyrolyzer",
-    "thermal:machine_refinery",
-    "thermal:machine_sawmill",
-    "thermal:machine_smelter"
+    {
+      "id": "mekanism:basic_combining_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_compressing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_crushing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_enriching_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_infusing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_injecting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_purifying_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_sawing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:basic_smelting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_combining_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_compressing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_crushing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_enriching_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_infusing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_injecting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_purifying_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_sawing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_smelting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_combining_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_compressing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_crushing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_enriching_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_infusing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_injecting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_purifying_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_sawing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_smelting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_combining_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_compressing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_crushing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_enriching_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_infusing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_injecting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_purifying_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_sawing_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_smelting_factory",
+      "required": false
+    },
+    {
+      "id": "mekanism:chargepad",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_crystallizer",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_dissolution_chamber",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_infuser",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_injection_chamber",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_oxidizer",
+      "required": false
+    },
+    {
+      "id": "mekanism:chemical_washer",
+      "required": false
+    },
+    {
+      "id": "mekanism:combiner",
+      "required": false
+    },
+    {
+      "id": "mekanism:crusher",
+      "required": false
+    },
+    {
+      "id": "mekanism:digital_miner",
+      "required": false
+    },
+    {
+      "id": "mekanism:electric_pump",
+      "required": false
+    },
+    {
+      "id": "mekanism:electrolytic_separator",
+      "required": false
+    },
+    {
+      "id": "mekanism:energized_smelter",
+      "required": false
+    },
+    {
+      "id": "mekanism:enrichment_chamber",
+      "required": false
+    },
+    {
+      "id": "mekanism:fluidic_plenisher",
+      "required": false
+    },
+    {
+      "id": "mekanism:formulaic_assemblicator",
+      "required": false
+    },
+    {
+      "id": "mekanism:laser",
+      "required": false
+    },
+    {
+      "id": "mekanism:laser_amplifier",
+      "required": false
+    },
+    {
+      "id": "mekanism:laser_tractor_beam",
+      "required": false
+    },
+    {
+      "id": "mekanism:metallurgic_infuser",
+      "required": false
+    },
+    {
+      "id": "mekanism:osmium_compressor",
+      "required": false
+    },
+    {
+      "id": "mekanism:precision_sawmill",
+      "required": false
+    },
+    {
+      "id": "mekanism:pressure_disperser",
+      "required": false
+    },
+    {
+      "id": "mekanism:pressurized_reaction_chamber",
+      "required": false
+    },
+    {
+      "id": "mekanism:purification_chamber",
+      "required": false
+    },
+    {
+      "id": "mekanism:quantum_entangloporter",
+      "required": false
+    },
+    {
+      "id": "mekanism:resistive_heater",
+      "required": false
+    },
+    {
+      "id": "mekanism:modification_station",
+      "required": false
+    },
+    {
+      "id": "mekanism:isotopic_centrifuge",
+      "required": false
+    },
+    {
+      "id": "mekanism:nutritional_liquifier",
+      "required": false
+    },
+    {
+      "id": "mekanism:rotary_condensentrator",
+      "required": false
+    },
+    {
+      "id": "mekanism:security_desk",
+      "required": false
+    },
+    {
+      "id": "mekanism:seismic_vibrator",
+      "required": false
+    },
+    {
+      "id": "mekanism:solar_neutron_activator",
+      "required": false
+    },
+    {
+      "id": "mekanism:superheating_element",
+      "required": false
+    },
+    {
+      "id": "mekanism:teleporter",
+      "required": false
+    },
+    {
+      "id": "mekanism:antiprotonic_nucleosynthesizer",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:alloysmelter",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:arcfurnace",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:assembler",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:autoworkbench",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:blastfurnacepreheater",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:bottlingmachine",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:chargingstation",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:cloche",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:crusher",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:electriclantern",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:excavator",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:fermenter",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:fluidpump",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:furnaceheater",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:metalpress",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:mixer",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:refinery",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:sampledrill",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:sawmill",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:squeezer",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:teslacoil",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:turretchem",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:turretgun",
+      "required": false
+    },
+    {
+      "id": "thermal:charge_bench",
+      "required": false
+    },
+    {
+      "id": "thermal:tinker_bench",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_bottler",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_brewer",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_centrifuge",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_chiller",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_crafter",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_crucible",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_furnace",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_insolator",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_press",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_pulverizer",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_pyrolyzer",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_refinery",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_sawmill",
+      "required": false
+    },
+    {
+      "id": "thermal:machine_smelter",
+      "required": false
+    },
+    {
+      "id": "biggerreactors:cyanite_reprocessor",
+      "required": false
+    }
   ]
 }

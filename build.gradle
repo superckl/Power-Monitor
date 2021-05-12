@@ -61,9 +61,9 @@ dependencies {
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")// Mekanism: Tools
     
     //Thermal Series
-    compile fg.deobf("curse.maven:thermalfoundation-222880:3248150")
-    compile fg.deobf("curse.maven:thermalexpansion-69163:3247000")
-    compile fg.deobf("curse.maven:cofhcore-69162:3249453")
+    runtimeOnly fg.deobf("curse.maven:thermalfoundation-222880:3248150")
+    runtimeOnly fg.deobf("curse.maven:thermalexpansion-69163:3247000")
+    runtimeOnly fg.deobf("curse.maven:cofhcore-69162:3249453")
     
     //Immersive Engineering
     //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
@@ -85,7 +85,8 @@ if (build_number == null) {
 	build_number = '0'
 }
 
-version = minecraft_version + "-" + version_major + "." + version_minor + "." + build_number
+String semver = version_major + "." + version_minor + "." + build_number
+version = minecraft_version + "-" + semver
 group= artifact_group
 archivesBaseName = artifact_basename
 
@@ -163,7 +164,7 @@ jar {
         attributes([
             "Specification-Title": "Universal Power Monitor",
             "Specification-Vendor": "superckl",
-            "Specification-Version": "${project.version}",
+            "Specification-Version": "${semver}",
             "Implementation-Title": "${project.name}",
             "Implementation-Version": "${project.version}",
             "Implementation-Vendor" :"superckl",

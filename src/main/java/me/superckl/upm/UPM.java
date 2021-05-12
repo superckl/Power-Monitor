@@ -15,8 +15,6 @@ import me.superckl.upm.integration.IntegrationModule;
 import me.superckl.upm.integration.immersiveengineering.IEIntegration;
 import me.superckl.upm.integration.mekanism.MekanismGeneratorsIntegration;
 import me.superckl.upm.integration.mekanism.MekanismIntegration;
-import me.superckl.upm.integration.thermal.CoFHCoreIntegration;
-import me.superckl.upm.integration.thermal.ThermalExpansionIntegration;
 import me.superckl.upm.network.NetworkListeners;
 import me.superckl.upm.packet.OpenUPMScreenPacket;
 import me.superckl.upm.packet.RequestUPMScanPacket;
@@ -84,10 +82,6 @@ public class UPM {
 			modules.add(new MekanismGeneratorsIntegration());
 		if(mods.isLoaded("immersiveengineering"))
 			modules.add(new IEIntegration());
-		if(mods.isLoaded("cofh_core"))
-			modules.add(new CoFHCoreIntegration());
-		if(mods.isLoaded("thermal_expansion"))
-			modules.add(new ThermalExpansionIntegration());
 		this.integrations = ImmutableList.copyOf(modules);
 	}
 

@@ -1,18 +1,57 @@
 {
   "replace": false,
   "values": [
-    "mekanism:basic_universal_cable",
-    "mekanism:advanced_universal_cable",
-    "mekanism:elite_universal_cable",
-    "mekanism:ultimate_universal_cable",
-    "immersiveengineering:posttransformer",
-    "immersiveengineering:transformer",
-    "immersiveengineering:transformerhv",
-    "immersiveengineering:hv_relay",
-    "immersiveengineering:lv_relay",
-    "immersiveengineering:mv_relay",
-    "immersiveengineering:hv_conn",
-    "immersiveengineering:mv_conn",
-    "immersiveengineering:lv_conn"
+    {
+      "id": "mekanism:basic_universal_cable",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_universal_cable",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_universal_cable",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_universal_cable",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:posttransformer",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:transformer",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:transformerhv",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:hv_relay",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:lv_relay",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:mv_relay",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:hv_conn",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:mv_conn",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:lv_conn",
+      "required": false
+    }
   ]
 }

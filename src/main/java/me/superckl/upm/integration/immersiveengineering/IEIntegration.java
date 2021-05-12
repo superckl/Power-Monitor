@@ -20,44 +20,44 @@ public class IEIntegration extends IntegrationModule{
 	@Override
 	public void addTETags(final Builder<TileEntityType<?>> builder, final MemberType type) {
 		if(type == MemberType.MACHINE) {
-			builder.add(IETileTypes.ALLOY_SMELTER.get());
-			builder.add(IETileTypes.ARC_FURNACE.get());
-			builder.add(IETileTypes.ASSEMBLER.get());
-			builder.add(IETileTypes.AUTO_WORKBENCH.get());
-			builder.add(IETileTypes.BLASTFURNACE_PREHEATER.get());
-			builder.add(IETileTypes.BOTTLING_MACHINE.get());
-			builder.add(IETileTypes.CHARGING_STATION.get());
-			builder.add(IETileTypes.CLOCHE.get());
-			builder.add(IETileTypes.CRUSHER.get());
-			builder.add(IETileTypes.ELECTRIC_LANTERN.get());
-			builder.add(IETileTypes.EXCAVATOR.get());
-			builder.add(IETileTypes.FERMENTER.get());
-			builder.add(IETileTypes.FLUID_PUMP.get());
-			builder.add(IETileTypes.FURNACE_HEATER.get());
-			builder.add(IETileTypes.METAL_PRESS.get());
-			builder.add(IETileTypes.MIXER.get());
-			builder.add(IETileTypes.REFINERY.get());
-			builder.add(IETileTypes.SAMPLE_DRILL.get());
-			builder.add(IETileTypes.SAWMILL.get());
-			builder.add(IETileTypes.SQUEEZER.get());
-			builder.add(IETileTypes.TESLACOIL.get());
-			builder.add(IETileTypes.TURRET_CHEM.get());
-			builder.add(IETileTypes.TURRET_GUN.get());
+			builder.addOptional(IETileTypes.ALLOY_SMELTER.getId());
+			builder.addOptional(IETileTypes.ARC_FURNACE.getId());
+			builder.addOptional(IETileTypes.ASSEMBLER.getId());
+			builder.addOptional(IETileTypes.AUTO_WORKBENCH.getId());
+			builder.addOptional(IETileTypes.BLASTFURNACE_PREHEATER.getId());
+			builder.addOptional(IETileTypes.BOTTLING_MACHINE.getId());
+			builder.addOptional(IETileTypes.CHARGING_STATION.getId());
+			builder.addOptional(IETileTypes.CLOCHE.getId());
+			builder.addOptional(IETileTypes.CRUSHER.getId());
+			builder.addOptional(IETileTypes.ELECTRIC_LANTERN.getId());
+			builder.addOptional(IETileTypes.EXCAVATOR.getId());
+			builder.addOptional(IETileTypes.FERMENTER.getId());
+			builder.addOptional(IETileTypes.FLUID_PUMP.getId());
+			builder.addOptional(IETileTypes.FURNACE_HEATER.getId());
+			builder.addOptional(IETileTypes.METAL_PRESS.getId());
+			builder.addOptional(IETileTypes.MIXER.getId());
+			builder.addOptional(IETileTypes.REFINERY.getId());
+			builder.addOptional(IETileTypes.SAMPLE_DRILL.getId());
+			builder.addOptional(IETileTypes.SAWMILL.getId());
+			builder.addOptional(IETileTypes.SQUEEZER.getId());
+			builder.addOptional(IETileTypes.TESLACOIL.getId());
+			builder.addOptional(IETileTypes.TURRET_CHEM.getId());
+			builder.addOptional(IETileTypes.TURRET_GUN.getId());
 		}else if(type == MemberType.STORAGE) {
-			builder.add(IETileTypes.CAPACITOR_CREATIVE.get());
-			builder.add(IETileTypes.CAPACITOR_HV.get());
-			builder.add(IETileTypes.CAPACITOR_LV.get());
-			builder.add(IETileTypes.CAPACITOR_MV.get());
+			builder.addOptional(IETileTypes.CAPACITOR_CREATIVE.getId());
+			builder.addOptional(IETileTypes.CAPACITOR_HV.getId());
+			builder.addOptional(IETileTypes.CAPACITOR_LV.getId());
+			builder.addOptional(IETileTypes.CAPACITOR_MV.getId());
 		}else if(type == MemberType.GENERATOR) {
-			builder.add(IETileTypes.DIESEL_GENERATOR.get());
-			builder.add(IETileTypes.DYNAMO.get());
-			builder.add(IETileTypes.LIGHTNING_ROD.get());
-			builder.add(IETileTypes.THERMOELECTRIC_GEN.get());
+			builder.addOptional(IETileTypes.DIESEL_GENERATOR.getId());
+			builder.addOptional(IETileTypes.DYNAMO.getId());
+			builder.addOptional(IETileTypes.LIGHTNING_ROD.getId());
+			builder.addOptional(IETileTypes.THERMOELECTRIC_GEN.getId());
 		}else if(type == MemberType.CABLE) {
-			builder.add(IETileTypes.POST_TRANSFORMER.get());
-			builder.add(IETileTypes.TRANSFORMER.get());
-			builder.add(IETileTypes.TRANSFORMER_HV.get());
-			EnergyConnectorTileEntity.SPEC_TO_TYPE.values().forEach(tileType -> builder.add(tileType.get()));
+			builder.addOptional(IETileTypes.POST_TRANSFORMER.getId());
+			builder.addOptional(IETileTypes.TRANSFORMER.getId());
+			builder.addOptional(IETileTypes.TRANSFORMER_HV.getId());
+			EnergyConnectorTileEntity.SPEC_TO_TYPE.values().forEach(tileType -> builder.addOptional(tileType.getId()));
 		}
 	}
 

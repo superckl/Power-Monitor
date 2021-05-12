@@ -1,15 +1,45 @@
 {
   "replace": false,
   "values": [
-    "mekanism:basic_energy_cube",
-    "mekanism:advanced_energy_cube",
-    "mekanism:elite_energy_cube",
-    "mekanism:ultimate_energy_cube",
-    "mekanism:creative_energy_cube",
-    "immersiveengineering:capacitorcreative",
-    "immersiveengineering:capacitorhv",
-    "immersiveengineering:capacitorlv",
-    "immersiveengineering:capacitormv",
-    "thermal:energy_cell"
+    {
+      "id": "mekanism:basic_energy_cube",
+      "required": false
+    },
+    {
+      "id": "mekanism:advanced_energy_cube",
+      "required": false
+    },
+    {
+      "id": "mekanism:elite_energy_cube",
+      "required": false
+    },
+    {
+      "id": "mekanism:ultimate_energy_cube",
+      "required": false
+    },
+    {
+      "id": "mekanism:creative_energy_cube",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:capacitorcreative",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:capacitorhv",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:capacitorlv",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:capacitormv",
+      "required": false
+    },
+    {
+      "id": "thermal:energy_cell",
+      "required": false
+    }
   ]
 }

@@ -1,22 +1,81 @@
 {
   "replace": false,
   "values": [
-    "mekanismgenerators:advanced_solar_generator",
-    "mekanismgenerators:bio_generator",
-    "mekanismgenerators:fission_reactor_port",
-    "mekanismgenerators:fusion_reactor_port",
-    "mekanismgenerators:gas_burning_generator",
-    "mekanismgenerators:heat_generator",
-    "mekanismgenerators:solar_generator",
-    "mekanismgenerators:wind_generator",
-    "immersiveengineering:dieselgenerator",
-    "immersiveengineering:dynamo",
-    "immersiveengineering:lightningrod",
-    "immersiveengineering:thermoelectricgen",
-    "thermal:dynamo_compression",
-    "thermal:dynamo_lapidary",
-    "thermal:dynamo_magmatic",
-    "thermal:dynamo_numismatic",
-    "thermal:dynamo_stirling"
+    {
+      "id": "mekanismgenerators:advanced_solar_generator",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:bio_generator",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:fission_reactor_port",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:fusion_reactor_port",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:gas_burning_generator",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:heat_generator",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:solar_generator",
+      "required": false
+    },
+    {
+      "id": "mekanismgenerators:wind_generator",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:dieselgenerator",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:dynamo",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:lightningrod",
+      "required": false
+    },
+    {
+      "id": "immersiveengineering:thermoelectricgen",
+      "required": false
+    },
+    {
+      "id": "thermal:dynamo_compression",
+      "required": false
+    },
+    {
+      "id": "thermal:dynamo_lapidary",
+      "required": false
+    },
+    {
+      "id": "thermal:dynamo_magmatic",
+      "required": false
+    },
+    {
+      "id": "thermal:dynamo_numismatic",
+      "required": false
+    },
+    {
+      "id": "thermal:dynamo_stirling",
+      "required": false
+    },
+    {
+      "id": "biggerreactors:reactor_power_tap",
+      "required": false
+    },
+    {
+      "id": "biggerreactors:turbine_power_tap",
+      "required": false
+    }
   ]
 }
