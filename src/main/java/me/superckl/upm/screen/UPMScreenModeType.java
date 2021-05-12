@@ -3,7 +3,7 @@ package me.superckl.upm.screen;
 import java.util.function.Supplier;
 
 import lombok.RequiredArgsConstructor;
-import me.superckl.upm.UPM;
+import me.superckl.upm.api.UPMAPI;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
@@ -26,7 +26,7 @@ public enum UPMScreenModeType {
 	public ITextComponent getTabHover() {
 		if(this.tabHover == null)
 			this.tabHover = new TranslationTextComponent(Util.makeDescriptionId("gui",
-					new ResourceLocation(UPM.MOD_ID, "tab."+this.name().toLowerCase())));
+					new ResourceLocation(UPMAPI.MOD_ID, "tab."+this.name().toLowerCase())));
 		return this.tabHover;
 	}
 

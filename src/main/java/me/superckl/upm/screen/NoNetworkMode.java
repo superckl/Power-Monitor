@@ -4,7 +4,7 @@ import java.util.IdentityHashMap;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
-import me.superckl.upm.UPM;
+import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,10 +16,10 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class NoNetworkMode extends UPMScreenMode{
 
-	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPM.MOD_ID, "textures/gui/no_network.png");
+	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPMAPI.MOD_ID, "textures/gui/no_network.png");
 	public static final int WIDTH = 144;
 	public static final int HEIGHT = 79;
-	public static final ITextComponent NO_NETWORK_TEXT = new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "no_network")));
+	public static final ITextComponent NO_NETWORK_TEXT = new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "no_network")));
 
 	private Button scanButton;
 

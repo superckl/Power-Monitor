@@ -24,7 +24,10 @@ repositories{
 }
 
 sourceSets {
+	api
 	main {
+		compileClasspath += sourceSets.api.output
+		runtimeClasspath += sourceSets.api.output
 		resources {
 			srcDir 'src/generated/resources'
 		}
@@ -37,6 +40,11 @@ sourceSets {
 	}
 }
 
+configurations {
+	apiImplementation.extendsFrom(implementation)
+	apiRuntimeOnly.extendsFrom(runtimeOnly)
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
@@ -45,23 +53,22 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombok_version}"
     
     //Mekanism
-    compileOnly "mekanism:Mekanism:${mekanism_version}:api"
+    //compileOnly "mekanism:Mekanism:${mekanism_version}:api"
     
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")// core
+    compile fg.deobf("mekanism:Mekanism:${mekanism_version}")// core
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:additions")// Mekanism: Additions
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")// Mekanism: Generators
+    compile fg.deobf("mekanism:Mekanism:${mekanism_version}:generators")// Mekanism: Generators
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")// Mekanism: Tools
     
     //Thermal Series
-    runtimeOnly fg.deobf("curse.maven:thermalfoundation-222880:3248150")
-    runtimeOnly fg.deobf("curse.maven:thermalexpansion-69163:3247000")
-    runtimeOnly fg.deobf("curse.maven:cofhcore-69162:3249453")
+    compile fg.deobf("curse.maven:thermalfoundation-222880:3248150")
+    compile fg.deobf("curse.maven:thermalexpansion-69163:3247000")
+    compile fg.deobf("curse.maven:cofhcore-69162:3249453")
     
-    //IE currently has naming collisions with official mappings :(
     //Immersive Engineering
-    compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
-	datagenCompile  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:datagen")
-    runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
+    //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
+	compile fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
+    //runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
@@ -86,6 +93,7 @@ minecraft {
             mods {
                 archivesBaseName {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -101,6 +109,7 @@ minecraft {
             mods {
                 archivesBaseName {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -119,6 +128,7 @@ minecraft {
             mods {
                 archivesBaseName {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -137,6 +147,9 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
+	from sourceSets.main.output
+	from sourceSets.api.output
+
     manifest {
         attributes([
             "Specification-Title": "Universal Power Monitor",
@@ -148,8 +161,22 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
         ])
     }
+    
+    finalizedBy('reobfJar') 
 }
 
-// Example configuration to allow publishing using the maven-publish task
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar') 
+task sourcesJar(type: Jar) {
+	archiveClassifier = 'sources'
+	from sourceSets.main.allJava
+	from sourceSets.api.allJava
+}
+
+task apiJar(type: Jar) {
+	archiveClassifier = 'api'
+	from sourceSets.api.output
+}
+
+artifacts {
+	archives apiJar
+	archives sourcesJar
+}

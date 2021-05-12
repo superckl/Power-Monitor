@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.StringNBT;

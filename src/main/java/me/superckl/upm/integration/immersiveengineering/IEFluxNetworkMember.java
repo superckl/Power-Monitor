@@ -8,9 +8,9 @@ import com.google.common.collect.Sets;
 
 import blusunrize.immersiveengineering.api.wires.GlobalWireNetwork;
 import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
-import me.superckl.upm.network.member.MemberType;
-import me.superckl.upm.network.member.NetworkMember;
-import me.superckl.upm.network.member.NetworkMemberResolver;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.api.NetworkMemberResolver;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

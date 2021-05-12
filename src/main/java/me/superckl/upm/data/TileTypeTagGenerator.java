@@ -1,7 +1,8 @@
 package me.superckl.upm.data;
 
 import me.superckl.upm.UPM;
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.UPMAPI;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -13,12 +14,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityType<?>>{
 
 	public TileTypeTagGenerator(final DataGenerator generatorIn, final ExistingFileHelper existingFileHelper) {
-		super(generatorIn, ForgeRegistries.TILE_ENTITIES, UPM.MOD_ID, existingFileHelper);
+		super(generatorIn, ForgeRegistries.TILE_ENTITIES, UPMAPI.MOD_ID, existingFileHelper);
 	}
 
 	@Override
 	public String getName() {
-		return "Tags: "+UPM.MOD_ID;
+		return "Tags: "+UPMAPI.MOD_ID;
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 		for(final MemberType type:MemberType.values()) {
 			if(type == MemberType.UNKNOWN)
 				continue;
-			final Builder<TileEntityType<?>> builder = this.tag(ForgeTagHandler.makeWrapperTag(ForgeRegistries.TILE_ENTITIES, new ResourceLocation(UPM.MOD_ID, type.name().toLowerCase())));
+			final Builder<TileEntityType<?>> builder = this.tag(ForgeTagHandler.makeWrapperTag(ForgeRegistries.TILE_ENTITIES, new ResourceLocation(UPMAPI.MOD_ID, type.name().toLowerCase())));
 			UPM.getINSTANCE().getIntegrations().forEach(integ -> integ.addTETags(builder, type));
 		}
 	}

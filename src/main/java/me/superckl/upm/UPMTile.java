@@ -8,9 +8,10 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import lombok.Getter;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.network.EnergyNetwork;
 import me.superckl.upm.network.UPMRedstoneConfiguration;
-import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UPMScanStatePacket;
 import me.superckl.upm.screen.UPMScreen;
@@ -239,13 +240,13 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		}
 		data.put(UPMTile.REDSTONE_CONFIG_KEY, this.redstoneConfig.serializeNBT());
 		data.putBoolean(UPMTile.REDSTONE_STATE_KEY, this.redstoneOutput);
-		nbt.put(UPM.MOD_ID, data);
+		nbt.put(UPMAPI.MOD_ID, data);
 		return super.save(nbt);
 	}
 
 	@Override
 	public void load(final BlockState state, final CompoundNBT nbt) {
-		final CompoundNBT data = nbt.getCompound(UPM.MOD_ID);
+		final CompoundNBT data = nbt.getCompound(UPMAPI.MOD_ID);
 		if(data.contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT networkNBT = data.getCompound(UPMTile.NETWORK_KEY);
 			this.networkSupplier = UPMTile.ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);

@@ -15,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.superckl.upm.ClientHelper;
 import me.superckl.upm.ModRegisters;
-import me.superckl.upm.UPM;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.network.UPMRedstoneConfiguration;
-import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UPMRedstoneConfigPacket;
 import net.minecraft.client.Minecraft;
@@ -41,32 +41,32 @@ import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 
 public class RedstoneMode extends UPMScreenMode{
 
-	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPM.MOD_ID, "textures/gui/redstone.png");
+	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPMAPI.MOD_ID, "textures/gui/redstone.png");
 	public static final int WIDTH = 195;
 	public static final int HEIGHT = 183;
 
-	public static final String REDSTONE_MODE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "redstone_mode"));
+	public static final String REDSTONE_MODE_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "redstone_mode"));
 
 	private final ItemStack upmIcon = new ItemStack(ModRegisters.UPM_ITEM::get);
 	private final ItemStack redstoneIcon = new ItemStack(Items.REDSTONE);
 	private final ItemRenderer itemRenderer = ClientHelper.getItemRenderer();
 
 	private final IFormattableTextComponent redstoneConfigText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "tab.redstone"))).withStyle(TextFormatting.BOLD);
+			new ResourceLocation(UPMAPI.MOD_ID, "tab.redstone"))).withStyle(TextFormatting.BOLD);
 	private final TranslationTextComponent configTypesText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_types")));
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_types")));
 	private final IFormattableTextComponent noneText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_none"))).withStyle(TextFormatting.ITALIC);
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_none"))).withStyle(TextFormatting.ITALIC);
 	private final TranslationTextComponent thresholdsText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_thresholds")));
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_thresholds")));
 	private final TranslationTextComponent upperText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_thresholds.upper")));
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_thresholds.upper")));
 	private final TranslationTextComponent lowerText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_thresholds.lower")));
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_thresholds.lower")));
 	private final IFormattableTextComponent onText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_on"))).withStyle(TextFormatting.DARK_GREEN, TextFormatting.BOLD);
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_on"))).withStyle(TextFormatting.DARK_GREEN, TextFormatting.BOLD);
 	private final IFormattableTextComponent offText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "redstone_off"))).withStyle(TextFormatting.DARK_RED, TextFormatting.BOLD);
+			new ResourceLocation(UPMAPI.MOD_ID, "redstone_off"))).withStyle(TextFormatting.DARK_RED, TextFormatting.BOLD);
 
 	private IFormattableTextComponent typesText = this.noneText;
 

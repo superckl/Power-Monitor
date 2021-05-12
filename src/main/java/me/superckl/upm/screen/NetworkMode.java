@@ -17,9 +17,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.ClientHelper;
 import me.superckl.upm.ModRegisters;
-import me.superckl.upm.UPM;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.network.EnergyNetwork;
-import me.superckl.upm.network.member.MemberType;
 import me.superckl.upm.network.member.WrappedNetworkMember;
 import me.superckl.upm.network.member.stack.NetworkItemStackHelper;
 import me.superckl.upm.packet.RequestUPMScanPacket;
@@ -48,29 +48,29 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class NetworkMode extends UPMScreenMode{
 
-	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPM.MOD_ID, "textures/gui/network.png");
+	public static final ResourceLocation BACKGROUND = new ResourceLocation(UPMAPI.MOD_ID, "textures/gui/network.png");
 	public static final int WIDTH = 195;
 	public static final int HEIGHT = 183;
 
 	private final TranslationTextComponent totalText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "total_energy")));
+			new ResourceLocation(UPMAPI.MOD_ID, "total_energy")));
 	private final TranslationTextComponent storageText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "storage_energy")));
+			new ResourceLocation(UPMAPI.MOD_ID, "storage_energy")));
 	private final TranslationTextComponent cableText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "cable_energy")));
+			new ResourceLocation(UPMAPI.MOD_ID, "cable_energy")));
 	private final TranslationTextComponent machineText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "machine_energy")));
+			new ResourceLocation(UPMAPI.MOD_ID, "machine_energy")));
 	private final TranslationTextComponent generatorText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "generator_energy")));
+			new ResourceLocation(UPMAPI.MOD_ID, "generator_energy")));
 
-	public static final String CONNECTED_BLOCKS_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "connected_blocks"));
+	public static final String CONNECTED_BLOCKS_ID = Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "connected_blocks"));
 
 	private final IFormattableTextComponent configChangedText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "config_changed"))).withStyle(TextFormatting.DARK_RED);
+			new ResourceLocation(UPMAPI.MOD_ID, "config_changed"))).withStyle(TextFormatting.DARK_RED);
 	private static final IFormattableTextComponent rescanSaveText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "rescan_save"))).withStyle(TextFormatting.RED);
+			new ResourceLocation(UPMAPI.MOD_ID, "rescan_save"))).withStyle(TextFormatting.RED);
 	private final IFormattableTextComponent multipleTypesText = new TranslationTextComponent(Util.makeDescriptionId("gui",
-			new ResourceLocation(UPM.MOD_ID, "multiple_blocks"))).withStyle(TextFormatting.RED);
+			new ResourceLocation(UPMAPI.MOD_ID, "multiple_blocks"))).withStyle(TextFormatting.RED);
 
 	private final Inventory slotInv = new Inventory(9*3);
 	private Multimap<MemberType, NetworkItemStackHelper> typeToHelpers;

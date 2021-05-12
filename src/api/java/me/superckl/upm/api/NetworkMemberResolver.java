@@ -1,4 +1,4 @@
-package me.superckl.upm.network.member;
+package me.superckl.upm.api;
 
 import java.util.Comparator;
 import java.util.Optional;

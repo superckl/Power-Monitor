@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import me.superckl.upm.ClientHelper;
 import me.superckl.upm.UPMTile;
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;

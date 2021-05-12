@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.network.member.WrappedNetworkMember;
 import me.superckl.upm.util.NetworkUtil;
 import net.minecraft.nbt.CompoundNBT;

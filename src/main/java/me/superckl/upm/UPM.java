@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import com.google.common.collect.ImmutableList;
 
 import lombok.Getter;
+import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.data.TileTypeTagGenerator;
 import me.superckl.upm.integration.IntegrationModule;
 import me.superckl.upm.integration.immersiveengineering.IEIntegration;
@@ -32,10 +33,9 @@ import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkDirection;
 
-@Mod(UPM.MOD_ID)
+@Mod(UPMAPI.MOD_ID)
 public class UPM {
 
-	public static final String MOD_ID = "upm";
 	@Getter
 	private static UPM INSTANCE;
 	@Getter
@@ -43,7 +43,7 @@ public class UPM {
 
 	public UPM() {
 		UPM.INSTANCE = this;
-		LogHelper.setLogger(LogManager.getFormatterLogger(UPM.MOD_ID));
+		LogHelper.setLogger(LogManager.getFormatterLogger(UPMAPI.MOD_ID));
 
 		final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		ModRegisters.BLOCK_REGISTER.register(bus);

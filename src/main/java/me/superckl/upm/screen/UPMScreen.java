@@ -3,8 +3,8 @@ package me.superckl.upm.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import me.superckl.upm.ClientHelper;
-import me.superckl.upm.UPM;
 import me.superckl.upm.UPMTile;
+import me.superckl.upm.api.UPMAPI;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -57,7 +57,7 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 	public void changeMode(final UPMScreenModeType type) {
 		final UPMScreenMode mode = type.buildMode();
 		ClientHelper.getMinecraft().setScreen(new UPMScreen(new UPMClientSideContainer(this.menu.getOwner()),
-				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode));
+				new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "name"))), mode));
 	}
 
 	public void onNetworkChanged(final UPMTile tile) {
@@ -146,14 +146,14 @@ public class UPMScreen extends ContainerScreen<UPMClientSideContainer>{
 	public static void openFrom(final UPMTile tile) {
 		final UPMScreenMode mode = tile.getScreenType().buildMode();
 		final UPMClientSideContainer container = new UPMClientSideContainer(tile);
-		ClientHelper.openScreen(new UPMScreen(container, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "name"))), mode));
+		ClientHelper.openScreen(new UPMScreen(container, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "name"))), mode));
 	}
 
 	public Button newScanButton(final int x, final int y, final int width, final int height, final boolean rescan, final IPressable onPress) {
-		return new Button(x, y, width, height, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, rescan ? "rescan":"scan"))),
+		return new Button(x, y, width, height, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, rescan ? "rescan":"scan"))),
 				onPress, (button, stack, mouseX, mouseY) -> {
 					if(!this.menu.getOwner().canScan())
-						this.renderTooltip(stack, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPM.MOD_ID, "scan_delay"))).withStyle(TextFormatting.RED), mouseX, mouseY);
+						this.renderTooltip(stack, new TranslationTextComponent(Util.makeDescriptionId("gui", new ResourceLocation(UPMAPI.MOD_ID, "scan_delay"))).withStyle(TextFormatting.RED), mouseX, mouseY);
 				});
 	}
 

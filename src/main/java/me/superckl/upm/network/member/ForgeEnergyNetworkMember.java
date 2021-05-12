@@ -3,6 +3,9 @@ package me.superckl.upm.network.member;
 import java.lang.ref.WeakReference;
 import java.util.Optional;
 
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.api.NetworkMemberResolver;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.energy.CapabilityEnergy;

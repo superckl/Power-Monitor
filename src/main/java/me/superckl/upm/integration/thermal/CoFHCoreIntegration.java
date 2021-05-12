@@ -1,8 +1,8 @@
 package me.superckl.upm.integration.thermal;
 
 import cofh.thermal.core.init.TCoreReferences;
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.integration.IntegrationModule;
-import me.superckl.upm.network.member.MemberType;
 import net.minecraft.data.TagsProvider;
 import net.minecraft.tileentity.TileEntityType;
 

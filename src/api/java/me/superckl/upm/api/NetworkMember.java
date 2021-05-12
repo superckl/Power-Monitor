@@ -1,4 +1,4 @@
-package me.superckl.upm.network.member;
+package me.superckl.upm.api;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
@@ -9,8 +9,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
-import lombok.Getter;
-import me.superckl.upm.ModRegisters;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +16,6 @@ import net.minecraft.util.math.BlockPos;
 public abstract class NetworkMember{
 
 	protected final WeakReference<TileEntity> tileEntity;
-	@Getter
 	protected final MemberType type;
 
 	public NetworkMember(final TileEntity tile, final MemberType type) {
@@ -79,6 +76,13 @@ public abstract class NetworkMember{
 	}
 
 	/**
+	 * @return The type of this network member
+	 */
+	public MemberType getType() {
+		return this.type;
+	}
+
+	/**
 	 * Attempts to add (insert) energy to this member
 	 * @param energy The amount of energy to add
 	 * @return The energy that was actually added
@@ -111,7 +115,7 @@ public abstract class NetworkMember{
 	public static Optional<? extends NetworkMember> from(@Nullable final TileEntity te, final Direction side) {
 		if(te == null)
 			return Optional.empty();
-		final Iterator<NetworkMemberResolver<?>> it = ModRegisters.RESOLVER_REGISTRY.get().getValues().stream().sorted(NetworkMemberResolver.REVERSE_COMPARATOR_FACTORY.apply(te)).iterator();
+		final Iterator<NetworkMemberResolver<?>> it = UPMAPI.RESOLVER_REGISTRY.get().getValues().stream().sorted(NetworkMemberResolver.REVERSE_COMPARATOR_FACTORY.apply(te)).iterator();
 		while(it.hasNext()) {
 			final Optional<? extends NetworkMember> opt = it.next().getNetworkMember(te, side);
 			if(opt.isPresent())

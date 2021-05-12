@@ -6,7 +6,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import me.superckl.upm.UPMTile;
-import me.superckl.upm.network.member.NetworkMember;
+import me.superckl.upm.api.NetworkMember;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent.Phase;

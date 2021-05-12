@@ -1,6 +1,6 @@
 package me.superckl.upm.integration;
 
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
 import net.minecraft.data.TagsProvider.Builder;
 import net.minecraft.tileentity.TileEntityType;
 

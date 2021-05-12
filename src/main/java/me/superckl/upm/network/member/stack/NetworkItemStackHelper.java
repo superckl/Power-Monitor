@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
-import me.superckl.upm.network.member.MemberType;
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.network.member.WrappedNetworkMember;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;

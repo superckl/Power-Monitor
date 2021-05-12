@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
-import me.superckl.upm.network.member.MemberType;
-import me.superckl.upm.network.member.NetworkMember;
+import me.superckl.upm.api.MemberType;
+import me.superckl.upm.api.NetworkMember;
 import me.superckl.upm.network.member.WrappedNetworkMember;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UpdateEnergyPacket;

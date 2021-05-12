@@ -1,7 +1,7 @@
 package me.superckl.upm.integration.mekanism;
 
+import me.superckl.upm.api.MemberType;
 import me.superckl.upm.integration.IntegrationModule;
-import me.superckl.upm.network.member.MemberType;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
 import mekanism.common.registries.MekanismTileEntityTypes;
 import net.minecraft.data.TagsProvider.Builder;
