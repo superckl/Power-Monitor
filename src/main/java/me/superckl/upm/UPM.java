@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 import lombok.Getter;
 import me.superckl.upm.api.UPMAPI;
+import me.superckl.upm.data.LootGenerator;
 import me.superckl.upm.data.TileTypeTagGenerator;
 import me.superckl.upm.integration.IntegrationModule;
 import me.superckl.upm.integration.immersiveengineering.IEIntegration;
@@ -71,6 +72,7 @@ public class UPM {
 
 	private void gatherData(final GatherDataEvent e) {
 		e.getGenerator().addProvider(new TileTypeTagGenerator(e.getGenerator(), e.getExistingFileHelper()));
+		e.getGenerator().addProvider(new LootGenerator(e.getGenerator()));
 	}
 
 	private void loadIntegrations() {
