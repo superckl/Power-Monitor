@@ -2,12 +2,10 @@ package me.superckl.upm.integration.immersiveengineering;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
 
-import blusunrize.immersiveengineering.api.energy.immersiveflux.IFluxConnection;
 import blusunrize.immersiveengineering.api.wires.GlobalWireNetwork;
 import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
 import me.superckl.upm.network.member.MemberType;
@@ -22,9 +20,9 @@ public class IEFluxNetworkMember extends NetworkMember{
 	private final IEFluxTileWrapper wrapper;
 	private final Direction side;
 
-	public IEFluxNetworkMember(final IEFluxTileWrapper wrapper, final Direction side, final MemberType type) {
-		super(type);
-		this.wrapper = wrapper;
+	public IEFluxNetworkMember(final TileEntity tile, final Direction side, final MemberType type) {
+		super(tile, type);
+		this.wrapper = IEFluxTileWrapper.from(tile);
 		this.side = side;
 	}
 
@@ -40,12 +38,12 @@ public class IEFluxNetworkMember extends NetworkMember{
 
 	@Override
 	public int addEnergy(final int energy) {
-		return this.wrapper.isReceiver() ? this.wrapper.receiver().receiveEnergy(this.side, energy, false):0;
+		return this.wrapper.insertEnergy(this.side, energy);
 	}
 
 	@Override
 	public int removeEnergy(final int energy) {
-		return this.wrapper.isProvider() ? this.wrapper.provider().extractEnergy(this.side, energy, false):0;
+		return this.wrapper.extractEnergy(this.side, energy);
 	}
 
 	@Override
@@ -54,21 +52,47 @@ public class IEFluxNetworkMember extends NetworkMember{
 	}
 
 	@Override
-	public Multimap<BlockPos, Direction> connectionsFrom(final TileEntity te) {
-		if(!(te instanceof IFluxConnection))
-			return ImmutableMultimap.of();
-		final LocalWireNetwork network = GlobalWireNetwork.getNetwork(te.getLevel()).getNullableLocalNet(te.getBlockPos());
+	public Direction[] connectingDirections() {
+		final Set<Direction> dirs = EnumSet.noneOf(Direction.class);
+		for(final Direction dir:super.connectingDirections())
+			if(this.wrapper.connectsEnergy(dir))
+				dirs.add(dir);
+		return dirs.toArray(new Direction[dirs.size()]);
+	}
+
+	@Override
+	public Set<BlockPos> getConnections() {
+		final LocalWireNetwork network = GlobalWireNetwork.getNetwork(this.tileEntity.get().getLevel()).getNullableLocalNet(this.tileEntity.get().getBlockPos());
 		if(network != null) {
-			final Multimap<BlockPos, Direction> map = MultimapBuilder.hashKeys(1).enumSetValues(Direction.class).build();
-			network.getConnectors().forEach(pos -> map.putAll(pos, EnumSet.allOf(Direction.class)));
-			return map;
+			final Set<BlockPos> positions = Sets.newHashSet(this.tileEntity.get().getBlockPos());
+			this.wrapper.connections(network).forEach(conn -> {
+				positions.add(conn.getEndA().getPosition());
+				positions.add(conn.getEndB().getPosition());
+			});
+			return positions;
 		}
-		return super.connectionsFrom(te);
+		return super.getConnections();
+	}
+
+	@Override
+	public boolean connects(final NetworkMember other, final Optional<Direction> side, final Optional<MemberType> overrideType,
+			final Optional<MemberType> adjacentOverrideType) {
+		if(super.connects(other, side, overrideType, adjacentOverrideType)) {
+			if(side.isPresent() && this.wrapper.connectsEnergy(side.get()))
+				return true;
+			final LocalWireNetwork network = GlobalWireNetwork.getNetwork(this.tileEntity.get().getLevel()).getNullableLocalNet(this.tileEntity.get().getBlockPos());
+			if(network != null) {
+				final BlockPos otherPos = other.getTileEntity().getBlockPos();
+				return network.getConnections(this.tileEntity.get().getBlockPos()).stream().anyMatch(conn ->
+				conn.getEndA().getPosition().equals(otherPos) || conn.getEndB().getPosition().equals(otherPos));
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public boolean valid() {
-		return this.wrapper.isValid();
+		return super.valid() && this.wrapper.isValid();
 	}
 
 	public static class Resolver extends NetworkMemberResolver<IEFluxNetworkMember>{
@@ -76,7 +100,7 @@ public class IEFluxNetworkMember extends NetworkMember{
 		@Override
 		public Optional<IEFluxNetworkMember> getNetworkMember(final TileEntity tile, final Direction side) {
 			if(IEFluxTileWrapper.matches(tile))
-				return Optional.of(new IEFluxNetworkMember(IEFluxTileWrapper.from(tile), side, this.typeFromTag(tile.getType())));
+				return Optional.of(new IEFluxNetworkMember(tile, side, this.typeFromTag(tile.getType())));
 			return Optional.empty();
 		}
 

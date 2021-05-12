@@ -1,74 +1,112 @@
 package me.superckl.upm.network.member;
 
-import java.util.Collection;
-import java.util.EnumSet;
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import me.superckl.upm.LogHelper;
 import me.superckl.upm.ModRegisters;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
-@RequiredArgsConstructor
 public abstract class NetworkMember{
 
+	protected final WeakReference<TileEntity> tileEntity;
 	@Getter
 	protected final MemberType type;
 
-	private static final Set<ResourceLocation> WARNED = Sets.newHashSet();
+	public NetworkMember(final TileEntity tile, final MemberType type) {
+		this.tileEntity = new WeakReference<>(tile);
+		this.type = type;
+	}
 
+	/**
+	 * @return The max energy storage (in FE) of this member.
+	 */
 	public abstract long getMaxStorage();
 
+	/**
+	 * @return The energy stored (in FE) in this member.
+	 */
 	public abstract long getCurrentEnergy();
 
-	public Multimap<BlockPos, Direction> connectionsFrom(final TileEntity te){
-		final Multimap<BlockPos, Direction> map = MultimapBuilder.hashKeys(1).enumSetValues(Direction.class).build();
-		//default to just looking in all directions from this point
-		map.putAll(te.getBlockPos(), EnumSet.allOf(Direction.class));
-		return map;
+	/**
+	 * @return A set of all positions that may possibly have connections.
+	 * This generally includes the position of this member.
+	 */
+	public Set<BlockPos> getConnections(){
+		return Sets.newHashSet(this.tileEntity.get().getBlockPos());
 	}
 
-	public NetworkMember resolve(final Map<Direction, NetworkMember> sidedMembers, final TileEntity entity) {
-		if(!NetworkMember.WARNED.contains(entity.getType().getRegistryName())) {
-			final Collection<NetworkMember> members = sidedMembers.values();
-			for(final NetworkMember member:members)
-				if(!this.isSameStorage(member)) {
-					LogHelper.warn("Error scanning network. TE "+entity.getType().getRegistryName()+" at "+entity.getBlockPos()+" provides different storage on sides than unsided storage!"
-							+ "Defaulting to unsided storage.");
-					NetworkMember.WARNED.add(entity.getType().getRegistryName());
-					break;
-				}
-		}
-		return this;
+	/**
+	 * @return All possible directions that this member can directly connect to
+	 */
+	public Direction[] connectingDirections() {
+		return this.type.connects() ? Direction.values():new Direction[0];
 	}
 
-	public boolean connects(final NetworkMember adjacent, final Direction side, final Optional<MemberType> overrideType, final Optional<MemberType> adjacentOverrideType) {
+	/**
+	 * Determines if this network members "connects" to the passed network member
+	 * @param other The other network member that this member might connect to
+	 * @param side The direction of the connection (from this member), which might not exist
+	 * @param overrideType The overriden type for this member, which might not exist
+	 * @param adjacentOverrideType The overriden type for the other member, which might not exist
+	 * @return If this member connects to the other member
+	 */
+	public boolean connects(final NetworkMember other, final Optional<Direction> side, final Optional<MemberType> overrideType, final Optional<MemberType> adjacentOverrideType) {
 		return overrideType.orElseGet(this::getType).connects();
 	}
 
+	/**
+	 * @return If UPM should perform injection checking to see if multiple members share the same storage.
+	 * Should be false if you properly override {@link #isSameStorage(NetworkMember)}.
+	 */
 	public boolean requiresInjectionCheck() {
 		return true;
 	}
 
+	/**
+	 * @return The tile entity associated with this network member
+	 */
+	public TileEntity getTileEntity() {
+		return this.tileEntity.get();
+	}
+
+	/**
+	 * Attempts to add (insert) energy to this member
+	 * @param energy The amount of energy to add
+	 * @return The energy that was actually added
+	 */
 	public abstract int addEnergy(int energy);
+
+	/**
+	 * Attempts to remove (extract) energy from this member
+	 * @param energy The amount of energy to remove
+	 * @return The energy that was actually removed
+	 */
 	public abstract int removeEnergy(int energy);
 
+	/**
+	 * Determines if this member shares the same storage as the passed member. This is very important
+	 * to override properly, since it allows UPM to avoid injection checking if
+	 * {@link #requiresInjectionCheck()} returns false.
+	 * @param member The other network member to check
+	 * @return If this network member shares the same storage as the passed member
+	 */
 	public abstract boolean isSameStorage(NetworkMember member);
 
-	public abstract boolean valid();
+	/**
+	 * @return If this network member is still valid and can be used to monitor storage
+	 */
+	public boolean valid() {
+		return this.tileEntity.get() != null;
+	}
 
 	public static Optional<? extends NetworkMember> from(@Nullable final TileEntity te, final Direction side) {
 		if(te == null)

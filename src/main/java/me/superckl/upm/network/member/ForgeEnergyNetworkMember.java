@@ -12,8 +12,8 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 
 	private final WeakReference<IEnergyStorage> storage;
 
-	public ForgeEnergyNetworkMember(final IEnergyStorage storage, final MemberType type) {
-		super(type);
+	public ForgeEnergyNetworkMember(final TileEntity tile, final IEnergyStorage storage, final MemberType type) {
+		super(tile, type);
 		this.storage = new WeakReference<>(storage);
 	}
 
@@ -29,7 +29,7 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 
 	@Override
 	public boolean valid() {
-		return this.storage.get() != null;
+		return super.valid() && this.storage.get() != null;
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class ForgeEnergyNetworkMember extends NetworkMember{
 
 		@Override
 		public Optional<ForgeEnergyNetworkMember> getNetworkMember(final TileEntity tile, final Direction side) {
-			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(storage -> new ForgeEnergyNetworkMember(storage, this.typeFromTag(tile.getType())));
+			return tile.getCapability(CapabilityEnergy.ENERGY, side).map(storage -> new ForgeEnergyNetworkMember(tile, storage, this.typeFromTag(tile.getType())));
 		}
 
 		@Override

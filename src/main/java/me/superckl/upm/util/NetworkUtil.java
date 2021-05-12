@@ -18,6 +18,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -35,6 +37,11 @@ import net.minecraft.world.World;
 
 public class NetworkUtil {
 
+	/**
+	 * Peforms a comprehensive scan of "connected" network members by querying tile entities and network members
+	 * @param upm The power monitor to start the search at
+	 * @return A list of wrapped network members representing the determined energy network
+	 */
 	public static List<WrappedNetworkMember> scan(final UPMTile upm) {
 		//Map of found members and their positions. Multiple blocks may provide the same storage, hence Multimap
 		final List<WrappedNetworkMember> members = new ArrayList<>();
@@ -42,29 +49,32 @@ public class NetworkUtil {
 		final TraversalTracker tracker = new TraversalTracker(upm.getTypeOverrides());
 
 		//List of tile entities to check. Originally populated with all connected neighbors of the UPM
-		Map<TileEntity, Pair<NetworkMember, Direction>> toCheck = NetworkUtil.getConnectedNeighbors(upm.getLevel(), upm.getBlockPos(), Direction.values(), tracker);
+		Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> toCheck = NetworkUtil.getConnectedNeighbors(upm.getLevel(), upm.getBlockPos(), Direction.values(), tracker);
 		while(!toCheck.isEmpty()) {
-			final Map<TileEntity, Pair<NetworkMember, Direction>> toCheckTemp = new IdentityHashMap<>();
+			//temporary map to store tile entities we found to check
+			final Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> toCheckTemp = new IdentityHashMap<>();
 			toCheck.forEach((te, member) -> {
 				boolean found = false;
+				//Check if this member has already been found (shares storage with another member)
 				for(final WrappedNetworkMember existingMember:members)
 					if(existingMember.getMember().isSameStorage(member.getLeft())) {
+						//Simply add this position to the wrapped member if it already exists
 						existingMember.addPosition(te.getBlockPos(), te.getType(), member.getRight());
 						found = true;
 					}
 				if(!found) {
+					//Create a new wrapped member if it doesn't already exist
 					final WrappedNetworkMember wrapped = new WrappedNetworkMember(member.getLeft(),
 							Util.make(new HashMap<>(), map -> map.put(te.getBlockPos(), member.getRight())),
 							Lists.newArrayList(te.getType()));
 					tracker.typeOf(te).ifPresent(type -> wrapped.setType(type));
 					members.add(wrapped);
 				}
-				member.getKey().connectionsFrom(te).asMap().forEach((pos, dirs) -> {
-					toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te.getLevel(), pos, dirs.toArray(new Direction[dirs.size()]), tracker));
-				});
-				//toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te, te.getBlockPos(), member.getLeft().childDirections(), tracker));
+				//Add all the connected neighbors of this member as tile entities to check
+				toCheckTemp.putAll(NetworkUtil.getConnectedNeighbors(te.getLevel(), te.getBlockPos(), member.getKey().connectingDirections(), tracker));
 
 			});
+			//Assign the temporary map to the actual map once it's empty
 			toCheck = new IdentityHashMap<>(toCheckTemp);
 		}
 
@@ -74,32 +84,76 @@ public class NetworkUtil {
 		return NetworkUtil.injectionConsolidate(members);
 	}
 
-	public static Map<TileEntity, Pair<NetworkMember, Direction>> getConnectedNeighbors(final World level, final BlockPos pos, final Direction[] dirs, final TraversalTracker tracker){
+	/**
+	 * Finds all connected network members to block at the passed position.
+	 * @param level The level the search is occurring in
+	 * @param pos The position to look for neighboring members at
+	 * @param dirs The directions to search for neighboring members
+	 * @param tracker The traversal tracker for the current network search
+	 * @return All connected tile entities and their associated network members and the direction (if adjacent). It is possible that a connected member
+	 * is not adjacent (e.g., IE wires), and thus does not have an associated direction
+	 */
+	public static Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> getConnectedNeighbors(final World level, final BlockPos pos, final Direction[] dirs, final TraversalTracker tracker){
 		final TileEntity originTE = level.getBlockEntity(pos);
+		//If there is no tile entity at this position, we cannot determine network members
 		if(originTE == null)
 			return Collections.emptyMap();
+		//A map keeping track of the network members in each direction for this tile entity
 		final Map<Direction, NetworkMember> originMembers = new EnumMap<>(Direction.class);
+		//A map of "extra" connected positions that are exposed by the network member
+		final Multimap<Direction, BlockPos> positions = MultimapBuilder.enumKeys(Direction.class).hashSetValues().build();
 		for(final Direction dir:dirs)
 			NetworkMember.from(originTE, dir).ifPresent(member -> {
 				originMembers.put(dir, member);
+				positions.putAll(dir, member.getConnections());
 			});
-		final Map<TileEntity, Pair<NetworkMember, Direction>> members = Maps.newIdentityHashMap();
+		//Grab any positions that don't have an associated direction
+		final Optional<Pair<NetworkMember, Set<BlockPos>>> noDirs = NetworkMember.from(originTE, null).map(member ->
+		Pair.of(member, member.getConnections()));
+		//Remove those that already have a direction
+		noDirs.ifPresent(pair -> pair.getValue().removeAll(positions.values()));
+		//Map of tile entities to their network member and direction, if it exists
+		final Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> members = Maps.newIdentityHashMap();
+		//For all of the potential connected members, check they are connected
 		for(final Direction dir:originMembers.keySet()) {
 			final BlockPos neighborPos = pos.relative(dir);
-			if(!tracker.isInvalid(neighborPos)) {
-				//visited.add(neighborPos);
-				final TileEntity te = originTE.getLevel().getBlockEntity(neighborPos);
-				NetworkMember.from(te, dir.getOpposite()).filter(member ->
-				originMembers.get(dir).connects(member, dir, tracker.typeOf(originTE), tracker.typeOf(te)))
-				.ifPresent(member -> {
-					members.put(te, Pair.of(member, dir.getOpposite()));
-					tracker.invalidate(neighborPos);
-				});
-			}
+			NetworkUtil.checkConnectedMember(originTE, dir, members, neighborPos, originMembers.get(dir), tracker);
 		}
+		positions.forEach((dir, connectedPos) -> {
+			NetworkUtil.checkConnectedMember(originTE, dir, members, connectedPos, originMembers.get(dir), tracker);
+		});
+		noDirs.ifPresent(pair -> pair.getValue().forEach(connectedPos -> {
+			NetworkUtil.checkConnectedMember(originTE, null, members, connectedPos, pair.getKey(), tracker);
+		}));
 		//Ignore UPMs
 		members.keySet().removeIf(te -> te instanceof UPMTile);
 		return members;
+	}
+
+	/**
+	 * Checks that the network member at pos is actually connected to the originating network member, and adds it to members if so
+	 * @param originTE the originating tile entity
+	 * @param dir The direction from the originating tile entity
+	 * @param members A map of all discovered members to which the connected member will be added
+	 * @param pos The position of the member to check
+	 * @param originMember The originating network member
+	 * @param tracker The traversal tracker for the current network search
+	 */
+	private static void checkConnectedMember(final TileEntity originTE, final Direction dir, final Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> members,
+			final BlockPos pos, final NetworkMember originMember, final TraversalTracker tracker) {
+		//If we've already searched this position, skip it
+		if(!tracker.isInvalid(pos)) {
+			final TileEntity te = originTE.getLevel().getBlockEntity(pos);
+			final Optional<Direction> dirOpt = Optional.ofNullable(dir);
+			//get the network member, and is present, make sure it connects to the originating member
+			NetworkMember.from(te, dirOpt.map(Direction::getOpposite).orElse(null)).filter(member ->
+			originMember.connects(member, dirOpt, tracker.typeOf(originTE), tracker.typeOf(te)))
+			.ifPresent(member -> {
+				//Add it to members and mark this position as checked
+				members.put(te, Pair.of(member, dirOpt.map(Direction::getOpposite)));
+				tracker.invalidate(pos);
+			});
+		}
 	}
 
 	/**
@@ -157,15 +211,23 @@ public class NetworkUtil {
 		return consolidatedMembers;
 	}
 
-	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<BlockPos, Direction> positions, final World level) throws IllegalStateException{
+	/**
+	 * Converts a map of block positions and directions into a network member for purposes of deserializing networks.
+	 * It is not verified that all the members are the "same" in some regard. The first network members is used.
+	 * @param positions The map of positions and direction to get network members from
+	 * @param level The level of the energy network
+	 * @return The network member and it's associated tile entities
+	 * @throws IllegalStateException
+	 */
+	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<BlockPos, Optional<Direction>> positions, final World level) throws IllegalStateException{
 		NetworkMember member = null;
 		final List<TileEntityType<?>> types = new ArrayList<>();
 		for(final BlockPos pos:positions.keySet()){
 			final TileEntity te = level.getBlockEntity(pos);
 			if(te == null)
 				throw new IllegalStateException("Error deserializing EnergyNetwork. TileEntity at "+pos+" is null!");
-			final NetworkMember intMember = NetworkMember.from(te, positions.get(pos)).orElseThrow(() ->
-			new IllegalStateException("Error deserializing EnergyNetwork. Unsided NetworkMember at "+pos+" for TE "+te.getType().getRegistryName()+" does not exist!"));
+			final NetworkMember intMember = NetworkMember.from(te, positions.get(pos).orElse(null)).orElseThrow(() ->
+			new IllegalStateException("Error deserializing EnergyNetwork. NetworkMember at "+pos+" for TE "+te.getType().getRegistryName()+" does not exist!"));
 			if(member == null)
 				member = intMember;
 			if(!types.contains(te.getType()))
@@ -173,32 +235,16 @@ public class NetworkUtil {
 		}
 		return Pair.of(member, types);
 	}
+
 	@RequiredArgsConstructor
 	public static class TraversalTracker{
 
 		private final Set<BlockPos> invalid = new HashSet<>();
-		private final Set<BlockPos> potential = new HashSet<>();
 
 		private final Map<TileEntityType<?>, MemberType> typeOverrides;
 
-		public Optional<Object> check(final BlockPos pos) {
-			if(this.invalid.contains(pos))
-				return Optional.of(VisitedType.INVALID);
-			if(this.potential.contains(pos))
-				return Optional.of(VisitedType.POTENTIAL);
-			return Optional.empty();
-		}
-
 		public boolean invalidate(final BlockPos pos) {
 			return this.invalid.add(pos);
-		}
-
-		public boolean addPotential(final BlockPos pos) {
-			return this.potential.add(pos);
-		}
-
-		public boolean removePotential(final BlockPos pos) {
-			return this.potential.remove(pos);
 		}
 
 		public boolean isInvalid(final BlockPos pos) {
@@ -208,12 +254,6 @@ public class NetworkUtil {
 		public Optional<MemberType> typeOf(@Nonnull final TileEntity te){
 			return Optional.ofNullable(this.typeOverrides.get(te.getType()));
 		}
-
-	}
-
-	public enum VisitedType{
-
-		INVALID, POTENTIAL;
 
 	}
 

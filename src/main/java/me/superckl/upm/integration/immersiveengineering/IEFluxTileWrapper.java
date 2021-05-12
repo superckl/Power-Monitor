@@ -1,21 +1,26 @@
 package me.superckl.upm.integration.immersiveengineering;
 
 import java.lang.ref.WeakReference;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import blusunrize.immersiveengineering.api.energy.immersiveflux.IFluxConnection;
 import blusunrize.immersiveengineering.api.energy.immersiveflux.IFluxProvider;
 import blusunrize.immersiveengineering.api.energy.immersiveflux.IFluxReceiver;
+import blusunrize.immersiveengineering.api.wires.Connection;
+import blusunrize.immersiveengineering.api.wires.IImmersiveConnectable;
+import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 
 public class IEFluxTileWrapper{
 
-	private final Optional<WeakReference<IFluxConnection>> asConnection;
+	private final Optional<WeakReference<IImmersiveConnectable>> asConnection;
 	private final Optional<WeakReference<IFluxProvider>> asProvider;
 	private final Optional<WeakReference<IFluxReceiver>> asReceiver;
 
-	private IEFluxTileWrapper(final IFluxConnection connection, final IFluxProvider provider, final IFluxReceiver receiver) {
+	private IEFluxTileWrapper(final IImmersiveConnectable connection, final IFluxProvider provider, final IFluxReceiver receiver) {
 		this.asConnection = Optional.ofNullable(connection).map(WeakReference::new);
 		this.asProvider = Optional.ofNullable(provider).map(WeakReference::new);
 		this.asReceiver = Optional.ofNullable(receiver).map(WeakReference::new);
@@ -34,7 +39,7 @@ public class IEFluxTileWrapper{
 		return this.asProvider != null;
 	}
 
-	public IFluxConnection connection() {
+	public IImmersiveConnectable connection() {
 		return this.asConnection.get().get();
 	}
 
@@ -70,6 +75,32 @@ public class IEFluxTileWrapper{
 		return this.receiver().getEnergyStored(side);
 	}
 
+	public Collection<Connection> connections(final LocalWireNetwork network){
+		if(this.isConnection())
+			return this.connection().getConnectionPoints().stream().map(network::getConnections).flatMap(Collection::stream).collect(Collectors.toSet());
+		return Collections.emptySet();
+	}
+
+	public int insertEnergy(final Direction dir, final int amount) {
+		if(this.isReceiver())
+			return this.receiver().receiveEnergy(dir, amount, false);
+		return 0;
+	}
+
+	public int extractEnergy(final Direction dir, final int amount) {
+		if(this.isProvider())
+			return this.provider().extractEnergy(dir, amount, false);
+		return 0;
+	}
+
+	public boolean connectsEnergy(final Direction from) {
+		if(this.isProvider())
+			return this.provider().canConnectEnergy(from);
+		if(this.isReceiver())
+			return this.receiver().canConnectEnergy(from);
+		return false;
+	}
+
 	public boolean isValid() {
 		return this.asConnection.map(ref -> ref.get() != null).orElse(true) &&
 				this.asProvider.map(ref -> ref.get() != null).orElse(true) &&
@@ -77,15 +108,14 @@ public class IEFluxTileWrapper{
 	}
 
 	public static IEFluxTileWrapper from(final TileEntity entity) {
-		final IFluxConnection connection = entity instanceof IFluxConnection ? (IFluxConnection) entity:null;
+		final IImmersiveConnectable connection = entity instanceof IImmersiveConnectable ? (IImmersiveConnectable) entity:null;
 		final IFluxProvider provider = entity instanceof IFluxProvider ? (IFluxProvider) entity:null;
 		final IFluxReceiver receiver = entity instanceof IFluxReceiver ? (IFluxReceiver) entity:null;
 		return new IEFluxTileWrapper(connection, provider, receiver);
 	}
 
 	public static boolean matches(final TileEntity entity) {
-		//TODO need to consider a tile that's just a connector as well
-		return entity instanceof IFluxProvider || entity instanceof IFluxReceiver;
+		return entity instanceof IFluxProvider || entity instanceof IFluxReceiver || entity instanceof IImmersiveConnectable;
 	}
 
 }

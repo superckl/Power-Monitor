@@ -1,17 +1,35 @@
 package me.superckl.upm.util;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
 
 public class SerializationUtil {
+
+	public static final Function<Direction, StringNBT> DIRECTION_SERIALIZER = dir -> StringNBT.valueOf(dir.getSerializedName());
+	public static final Function<INBT, Direction> DIRECTION_DESERIALIZER = inbt -> Direction.byName(inbt.getAsString());
+
+	public static final Function<Optional<Direction>, StringNBT> OPT_DIRECTION_SERIALIZER;
+	public static final Function<INBT, Optional<Direction>> OPT_DIRECTION_DESERIALIZER;
+
+	static {
+		final Pair<Function<Optional<Direction>, StringNBT>, Function<INBT, Optional<Direction>>>  dirPair =
+				SerializationUtil.optionalWrap(SerializationUtil.DIRECTION_SERIALIZER, SerializationUtil.DIRECTION_DESERIALIZER, StringNBT.valueOf("null"));
+		OPT_DIRECTION_SERIALIZER = dirPair.getKey();
+		OPT_DIRECTION_DESERIALIZER = dirPair.getValue();
+	}
 
 	public static <K, V> void writeMap(final Map<? extends K, ? extends V> map, final BiConsumer<PacketBuffer, K> keySerializer,
 			final BiConsumer<PacketBuffer, V> valueSerializer, final PacketBuffer buffer) {
@@ -81,6 +99,20 @@ public class SerializationUtil {
 		for(int i = 0; i < numElem; i++)
 			set.add(elementDeserializer.apply(buffer));
 		return set;
+	}
+
+	public static <T, I extends INBT> Pair<Function<Optional<T>, I>, Function<INBT, Optional<T>>> optionalWrap(final Function<T, ? extends I> serializer, final Function<INBT, ? extends T> deserializer, final I missingValue){
+		final Function<Optional<T>, I> optSerializer = opt -> {
+			if(opt.isPresent())
+				return serializer.apply(opt.get());
+			return missingValue;
+		};
+		final Function<INBT, Optional<T>> optDeserializer = inbt -> {
+			if(inbt.equals(missingValue))
+				return Optional.empty();
+			return Optional.of(deserializer.apply(inbt));
+		};
+		return Pair.of(optSerializer, optDeserializer);
 	}
 
 }

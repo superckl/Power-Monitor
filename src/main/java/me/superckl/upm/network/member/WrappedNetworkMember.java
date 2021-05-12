@@ -3,6 +3,7 @@ package me.superckl.upm.network.member;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
@@ -15,7 +16,6 @@ import me.superckl.upm.util.NetworkUtil;
 import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
-import net.minecraft.nbt.StringNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -32,7 +32,7 @@ public class WrappedNetworkMember{
 
 	@Nonnull
 	private final NetworkMember member;
-	private final Map<BlockPos, Direction> positions;
+	private final Map<BlockPos, Optional<Direction>> positions;
 	private final List<TileEntityType<?>> tileTypes;
 	@Setter
 	private MemberType type;
@@ -47,7 +47,7 @@ public class WrappedNetworkMember{
 		return this.member.isSameStorage(other.member) && this.positions.equals(other.positions) && this.type == other.type;
 	}
 
-	public void addPosition(final BlockPos pos, final TileEntityType<?> type, final Direction side) {
+	public void addPosition(final BlockPos pos, final TileEntityType<?> type, final Optional<Direction> side) {
 		if(!this.positions.containsKey(pos)) {
 			this.positions.put(pos, side);
 			if(!this.tileTypes.contains(type))
@@ -75,16 +75,16 @@ public class WrappedNetworkMember{
 
 	public CompoundNBT serialize() {
 		final CompoundNBT nbt = new CompoundNBT();
-		nbt.put(WrappedNetworkMember.POSITIONS_KEY, SerializationUtil.writeMap(this.positions, NBTUtil::writeBlockPos, dir -> StringNBT.valueOf(dir.getName())));
+		nbt.put(WrappedNetworkMember.POSITIONS_KEY, SerializationUtil.writeMap(this.positions, NBTUtil::writeBlockPos, SerializationUtil.OPT_DIRECTION_SERIALIZER));
 		if(this.hasTypeOverride())
 			nbt.putString(WrappedNetworkMember.OVERRIDE_KEY, this.getType().name());
 		return nbt;
 	}
 
 	public static WrappedNetworkMember deserialize(final CompoundNBT nbt, final World level) throws IllegalStateException{
-		final Map<BlockPos, Direction> positions = SerializationUtil.readMap(nbt.getCompound(WrappedNetworkMember.POSITIONS_KEY),
+		final Map<BlockPos, Optional<Direction>> positions = SerializationUtil.readMap(nbt.getCompound(WrappedNetworkMember.POSITIONS_KEY),
 				HashMap::new, inbt -> NBTUtil.readBlockPos((CompoundNBT) inbt), Constants.NBT.TAG_COMPOUND,
-				inbt -> Direction.byName(inbt.getAsString()), Constants.NBT.TAG_STRING);
+				SerializationUtil.OPT_DIRECTION_DESERIALIZER, Constants.NBT.TAG_STRING);
 		final Pair<NetworkMember, List<TileEntityType<?>>> pair =  NetworkUtil.getMembers(positions, level);
 		final WrappedNetworkMember wrapped = new WrappedNetworkMember(pair.getLeft(), positions, pair.getRight());
 		if(nbt.contains(WrappedNetworkMember.OVERRIDE_KEY))
