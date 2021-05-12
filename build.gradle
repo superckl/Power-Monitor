@@ -76,7 +76,12 @@ compileJava {
     sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-version = version_major + "." + version_minor
+String build_number = System.getenv().BUILD_NUMBER
+if (build_number == null) {
+	build_number = '0'
+}
+
+version = version_major + "." + version_minor + "." + build_number
 group= artifact_group
 archivesBaseName = artifact_basename
 
