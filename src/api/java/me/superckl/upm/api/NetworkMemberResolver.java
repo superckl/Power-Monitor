@@ -37,10 +37,7 @@ public abstract class NetworkMemberResolver<T extends NetworkMember> extends For
 	 * @return The determined type, or {@link MemberType#UNKNOWN} if there is no tag on the type
 	 */
 	public MemberType typeFromTag(final TileEntityType<?> teType) {
-		for(final MemberType type:MemberType.values())
-			if(type != MemberType.UNKNOWN && teType.getTags().contains(type.tag()))
-				return type;
-		return MemberType.UNKNOWN;
+		return UPMAPI.memberTypeByTag(teType).orElse(MemberType.UNKNOWN);
 	}
 
 }
