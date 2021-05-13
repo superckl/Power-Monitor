@@ -192,6 +192,10 @@
     {
       "id": "silents_mechanisms:lava_generator",
       "required": false
+    },
+    {
+      "id": "cyclic:peat_generator",
+      "required": false
     }
   ]
 }

@@ -88,6 +88,9 @@ dependencies {
     //Silent's Mechanisms
     runtimeOnly fg.deobf("curse.maven:silentsmechanisms-326258:3272909")
     runtimeOnly fg.deobf("curse.maven:silentlib-242998:3235738")
+    
+    //Cyclic
+    runtimeOnly fg.deobf("curse.maven:cyclic-239286:3279021")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

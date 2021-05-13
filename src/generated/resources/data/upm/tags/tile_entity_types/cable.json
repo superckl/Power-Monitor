@@ -68,6 +68,10 @@
     {
       "id": "silents_mechanisms:wire",
       "required": false
+    },
+    {
+      "id": "cyclic:energy_pipe",
+      "required": false
     }
   ]
 }

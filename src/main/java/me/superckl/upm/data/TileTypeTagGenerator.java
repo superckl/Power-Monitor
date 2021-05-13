@@ -37,6 +37,7 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			//IF has a ton of machines but there's no good way to easily grab them from the mod source :/
 			this.addIndustrialForegoing(builder, type);
 			this.addSilent(builder, type);
+			this.addCyclic(builder, type);
 
 			//IE is handled in its integration because it has a lot and uses a resolver
 			//Mekanism is handled in its integration because it has an inane amount of tiles
@@ -239,6 +240,38 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			break;
 		case CABLE:
 			builder.addOptional(new ResourceLocation(name, "wire"));
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addCyclic(final Builder<TileEntityType<?>> builder, final MemberType type) {
+		final String name = "cyclic";
+		switch(type) {
+		case MACHINE:
+			builder.addOptional(new ResourceLocation(name, "melter"));
+			builder.addOptional(new ResourceLocation(name, "solidifier"));
+			builder.addOptional(new ResourceLocation(name, "peat_farm"));
+			builder.addOptional(new ResourceLocation(name, "forester"));
+			builder.addOptional(new ResourceLocation(name, "dropper"));
+			builder.addOptional(new ResourceLocation(name, "harvester"));
+			builder.addOptional(new ResourceLocation(name, "user"));
+			builder.addOptional(new ResourceLocation(name, "structure"));
+			builder.addOptional(new ResourceLocation(name, "miner"));
+			builder.addOptional(new ResourceLocation(name, "disenchanter"));
+			builder.addOptional(new ResourceLocation(name, "uncrafter"));
+			builder.addOptional(new ResourceLocation(name, "collector_fluid"));
+			builder.addOptional(new ResourceLocation(name, "anvil"));
+			break;
+		case STORAGE:
+			builder.addOptional(new ResourceLocation(name, "battery"));
+			break;
+		case GENERATOR:
+			builder.addOptional(new ResourceLocation(name, "peat_generator"));
+			break;
+		case CABLE:
+			builder.addOptional(new ResourceLocation(name, "energy_pipe"));
 			break;
 		default:
 			break;

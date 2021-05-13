@@ -692,6 +692,58 @@
     {
       "id": "silents_mechanisms:solidifier",
       "required": false
+    },
+    {
+      "id": "cyclic:melter",
+      "required": false
+    },
+    {
+      "id": "cyclic:solidifier",
+      "required": false
+    },
+    {
+      "id": "cyclic:peat_farm",
+      "required": false
+    },
+    {
+      "id": "cyclic:forester",
+      "required": false
+    },
+    {
+      "id": "cyclic:dropper",
+      "required": false
+    },
+    {
+      "id": "cyclic:harvester",
+      "required": false
+    },
+    {
+      "id": "cyclic:user",
+      "required": false
+    },
+    {
+      "id": "cyclic:structure",
+      "required": false
+    },
+    {
+      "id": "cyclic:miner",
+      "required": false
+    },
+    {
+      "id": "cyclic:disenchanter",
+      "required": false
+    },
+    {
+      "id": "cyclic:uncrafter",
+      "required": false
+    },
+    {
+      "id": "cyclic:collector_fluid",
+      "required": false
+    },
+    {
+      "id": "cyclic:anvil",
+      "required": false
     }
   ]
 }

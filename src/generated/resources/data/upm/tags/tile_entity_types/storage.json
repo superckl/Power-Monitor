@@ -52,6 +52,10 @@
     {
       "id": "silents_mechanisms:battery_box",
       "required": false
+    },
+    {
+      "id": "cyclic:battery",
+      "required": false
     }
   ]
 }
