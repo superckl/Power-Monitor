@@ -54,6 +54,14 @@
       "required": false
     },
     {
+      "id": "fluxnetworks:flux_plug",
+      "required": false
+    },
+    {
+      "id": "fluxnetworks:flux_point",
+      "required": false
+    },
+    {
       "id": "powah:ender_gate",
       "required": false
     },

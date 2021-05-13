@@ -13,6 +13,7 @@ import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.data.LootGenerator;
 import me.superckl.upm.data.TileTypeTagGenerator;
 import me.superckl.upm.integration.IntegrationModule;
+import me.superckl.upm.integration.fluxnetworks.FluxNetworksIntegration;
 import me.superckl.upm.integration.immersiveengineering.IEIntegration;
 import me.superckl.upm.integration.mekanism.MekanismGeneratorsIntegration;
 import me.superckl.upm.integration.mekanism.MekanismIntegration;
@@ -84,6 +85,8 @@ public class UPM {
 			modules.add(new MekanismGeneratorsIntegration());
 		if(mods.isLoaded("immersiveengineering"))
 			modules.add(new IEIntegration());
+		if(mods.isLoaded("fluxnetworks"))
+			modules.add(new FluxNetworksIntegration());
 		this.integrations = ImmutableList.copyOf(modules);
 	}
 

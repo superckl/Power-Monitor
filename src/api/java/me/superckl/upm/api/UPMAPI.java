@@ -19,12 +19,12 @@ public class UPMAPI {
 	 * Id for the UPM mod
 	 */
 	public static final String MOD_ID = "upm";
-	
+
 	/**
 	 * Registry for resolvers, populated by UPM.
 	 */
 	public static Supplier<IForgeRegistry<NetworkMemberResolver<?>>> RESOLVER_REGISTRY;
-	
+
 	/**
 	 * Map of all tags used for determining tile entity member types
 	 */
@@ -39,11 +39,11 @@ public class UPMAPI {
 	 * @param tileType The tile entity type
 	 * @return The tagged member type, or empty if the tile is not tagged
 	 */
-	public static Optional<MemberType> memberTypeByTag(TileEntityType<?> tileType) {
-		for(MemberType type:TAGS.keySet())
-			if(TAGS.get(type).contains(tileType))
+	public static Optional<MemberType> memberTypeByTag(final TileEntityType<?> tileType) {
+		for(final MemberType type:UPMAPI.TAGS.keySet())
+			if(UPMAPI.TAGS.get(type).contains(tileType))
 				return Optional.of(type);
 		return Optional.empty();
 	}
-	
+
 }

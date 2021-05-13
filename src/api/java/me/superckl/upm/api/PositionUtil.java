@@ -1,4 +1,4 @@
-package me.superckl.upm.util;
+package me.superckl.upm.api;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

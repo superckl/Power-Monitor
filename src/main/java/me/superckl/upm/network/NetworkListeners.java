@@ -7,8 +7,8 @@ import com.google.common.collect.Sets;
 
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.api.PositionUtil;
 import me.superckl.upm.network.member.wrapper.PositionBasedWrapper;
-import me.superckl.upm.util.PositionUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;

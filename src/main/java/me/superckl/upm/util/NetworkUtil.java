@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.api.PositionUtil;
 import me.superckl.upm.network.member.wrapper.PositionBasedWrapper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;

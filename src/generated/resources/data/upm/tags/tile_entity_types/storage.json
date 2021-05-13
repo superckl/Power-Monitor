@@ -38,6 +38,18 @@
       "required": false
     },
     {
+      "id": "fluxnetworks:basic_flux_storage",
+      "required": false
+    },
+    {
+      "id": "fluxnetworks:herculean_flux_storage",
+      "required": false
+    },
+    {
+      "id": "fluxnetworks:gargantuan_flux_storage",
+      "required": false
+    },
+    {
       "id": "thermal:energy_cell",
       "required": false
     },

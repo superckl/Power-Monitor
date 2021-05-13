@@ -10,8 +10,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.Getter;
 import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.api.PositionUtil;
 import me.superckl.upm.util.NetworkUtil;
-import me.superckl.upm.util.PositionUtil;
 import me.superckl.upm.util.SerializationUtil;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompoundNBT;

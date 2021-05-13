@@ -61,9 +61,9 @@ dependencies {
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}:tools")// Mekanism: Tools
     
     //Thermal Series
-    runtimeOnly fg.deobf("curse.maven:thermalfoundation-222880:3248150")
-    runtimeOnly fg.deobf("curse.maven:thermalexpansion-69163:3247000")
-    runtimeOnly fg.deobf("curse.maven:cofhcore-69162:3249453")
+    runtimeOnly fg.deobf("curse.maven:thermal-foundation-222880:3248150")
+    runtimeOnly fg.deobf("curse.maven:thermal-expansion-69163:3247000")
+    runtimeOnly fg.deobf("curse.maven:cofh-core-69162:3249453")
     
     //Immersive Engineering
     //compileOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}:api")
@@ -71,7 +71,7 @@ dependencies {
     //runtimeOnly  fg.deobf("blusunrize.immersiveengineering:ImmersiveEngineering:${ie_version}")
     
     //Bigger Reactors
-    runtimeOnly fg.deobf("curse.maven:biggerreactors-407780:3304030")
+    runtimeOnly fg.deobf("curse.maven:bigger-reactors-407780:3304030")
     runtimeOnly fg.deobf("curse.maven:phosphophyllite-412551:3276618")
     
     //Powah
@@ -79,18 +79,21 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:lollipop-347954:3232534")
     
     //Industrial Foregoing
-    runtimeOnly fg.deobf("curse.maven:industrialforegoing-266515:3261176")
+    runtimeOnly fg.deobf("curse.maven:industrial-foregoing-266515:3261176")
     runtimeOnly fg.deobf("curse.maven:titanium-287342:3261072")
     
     //Patchouli
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}")
     
     //Silent's Mechanisms
-    runtimeOnly fg.deobf("curse.maven:silentsmechanisms-326258:3272909")
-    runtimeOnly fg.deobf("curse.maven:silentlib-242998:3235738")
+    runtimeOnly fg.deobf("curse.maven:silents-mechanisms-326258:3272909")
+    runtimeOnly fg.deobf("curse.maven:silent-lib-242998:3235738")
     
     //Cyclic
     runtimeOnly fg.deobf("curse.maven:cyclic-239286:3279021")
+    
+    //Flux Networks
+    compile fg.deobf("curse.maven:flux-networks-248020:3285556")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

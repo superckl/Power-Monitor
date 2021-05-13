@@ -386,6 +386,10 @@
       "required": false
     },
     {
+      "id": "fluxnetworks:flux_controller",
+      "required": false
+    },
+    {
       "id": "thermal:charge_bench",
       "required": false
     },

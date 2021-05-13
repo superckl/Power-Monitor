@@ -11,7 +11,7 @@ import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
 import me.superckl.upm.api.NetworkMemberResolver;
-import me.superckl.upm.util.PositionUtil;
+import me.superckl.upm.api.PositionUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -111,7 +111,7 @@ public class IEFluxNetworkMember extends NetworkMember{
 		public int getPriority(final TileEntity tile) {
 			if(IEFluxTileWrapper.matches(tile))
 				return 1;
-			return 0;
+			return -1;
 		}
 
 	}

@@ -9,10 +9,8 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
-import me.superckl.upm.util.PositionUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 
 public abstract class NetworkMember{
@@ -40,7 +38,7 @@ public abstract class NetworkMember{
 	 * This generally includes the position of this member.
 	 */
 	public Set<GlobalPos> getConnections(){
-		return Sets.newHashSet(PositionUtil.getGlobalPos(getTileEntity()));
+		return Sets.newHashSet(PositionUtil.getGlobalPos(this.getTileEntity()));
 	}
 
 	/**
