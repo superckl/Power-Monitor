@@ -100,6 +100,86 @@
     {
       "id": "powah:thermo_gen",
       "required": false
+    },
+    {
+      "id": "industrialforegoing:pitiful_generator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_reactor",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:biofuel_generator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_furnace",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_slimey",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_culinary",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_potion",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_disenchantment",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_ender",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_explosive",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_frosty",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_halitosis",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_magma",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_pink",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_netherstar",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_death",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_rocket",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_crimed",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mycelial_generator_meatallurgic",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:bioreactor",
+      "required": false
     }
   ]
 }

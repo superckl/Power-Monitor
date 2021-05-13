@@ -464,6 +464,154 @@
     {
       "id": "powah:energizing_rod",
       "required": false
+    },
+    {
+      "id": "rftoolsbuilder:builder",
+      "required": false
+    },
+    {
+      "id": "rftoolsbuilder:shield_block1",
+      "required": false
+    },
+    {
+      "id": "rftoolsbuilder:shield_block2",
+      "required": false
+    },
+    {
+      "id": "rftoolsbuilder:shield_block3",
+      "required": false
+    },
+    {
+      "id": "rftoolsbuilder:shield_block4",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:animal_rancher",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:hydroponic_bed",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:plant_gatherer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:plant_sower",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:plant_fertilizer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:animal_feeder",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mob_crusher",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mob_duplicator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:wither_builder",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mob_slaughter_factory",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:sewer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:sewage_composter",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:animal_baby_separator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:washing_factory",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:material_stonework_factory",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fluid_sieving_machine",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mechanical_dirt",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:block_breaker",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fermentation_station",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:marine_fisher",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fluid_placer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:block_placer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:resourceful_furnace",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:ore_laser_base",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fluid_collector",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:spores_recreator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:potion_brewer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:sludge_refiner",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:water_condensator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:dye_mixer",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:laser_drill",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fluid_laser_base",
+      "required": false
     }
   ]
 }
