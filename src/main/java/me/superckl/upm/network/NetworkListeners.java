@@ -7,8 +7,11 @@ import com.google.common.collect.Sets;
 
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.api.NetworkMember;
+import me.superckl.upm.network.member.wrapper.PositionBasedWrapper;
+import me.superckl.upm.util.PositionUtil;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -23,21 +26,22 @@ public class NetworkListeners {
 	 */
 	@SubscribeEvent
 	public void onBlockChange(final BlockEvent.NeighborNotifyEvent e) {
-		if(e.getWorld().isClientSide())
+		if(e.getWorld().isClientSide() || !(e.getWorld() instanceof World))
 			return;
 		//Initialize the set with the changed block's positions to check if it
 		//was in a network
-		final Set<BlockPos> updated = Sets.newHashSet(e.getPos());
+		final World world = (World) e.getWorld();
+		final Set<GlobalPos> updated = Sets.newHashSet(GlobalPos.of(world.dimension(), e.getPos()));
 		//If the updated block has sided network members, check for networks on those sides as well
 		final TileEntity teUpdated = e.getWorld().getBlockEntity(e.getPos());
 		if(teUpdated != null)
 			e.getNotifiedSides().forEach(dir -> NetworkMember.from(teUpdated, dir)
-					.ifPresent(member -> updated.add(e.getPos().relative(dir))));
+					.ifPresent(member -> updated.add(GlobalPos.of(world.dimension(), e.getPos().relative(dir)))));
 		UPMTile.LOADED_TILES.stream().filter(tile -> tile.getLevel() == e.getWorld() && tile.getNetwork() != null).forEach(tile -> {
 			//For each loaded network, test if it contains any of the updated positions and rescan if so
 			final EnergyNetwork network = tile.getNetwork();
-			if(updated.contains(tile.getBlockPos()) || network.getMembers().stream()
-					.anyMatch(wrapped -> !Collections.disjoint(wrapped.getPositions().keySet(), updated)))
+			if(updated.contains(PositionUtil.getGlobalPos(tile)) || network.getMembers().stream()
+					.anyMatch(wrapped -> !Collections.disjoint(((PositionBasedWrapper) wrapped).getPositions().keySet(), updated)))
 				network.scheduleScan();
 		});
 	}

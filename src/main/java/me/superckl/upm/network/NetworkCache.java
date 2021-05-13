@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.experimental.Delegate;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
-import me.superckl.upm.network.member.WrappedNetworkMember;
+import me.superckl.upm.network.member.wrapper.WrappedNetworkMember;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.packet.UpdateEnergyPacket;
 import me.superckl.upm.util.MovingAveragedDifferenceCache;
@@ -24,13 +24,13 @@ public class NetworkCache {
 	public static final int CACHE_POINTS = 10;
 
 	@Getter
-	private final List<WrappedNetworkMember> members;
+	private final List<? extends WrappedNetworkMember> members;
 	@Delegate
 	private final StorageCache storageCache = new StorageCache();
 	private final Map<MemberType, MovingAveragedDifferenceCache> typeStored0 = new EnumMap<>(MemberType.class);
 	private final MovingAveragedDifferenceCache totalStored0 = new MovingAveragedDifferenceCache(NetworkCache.CACHE_POINTS);
 
-	public NetworkCache(final List<WrappedNetworkMember> members) {
+	public NetworkCache(final List<? extends WrappedNetworkMember> members) {
 		this.members = members;
 	}
 

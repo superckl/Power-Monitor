@@ -20,8 +20,8 @@ import me.superckl.upm.ModRegisters;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.UPMAPI;
 import me.superckl.upm.network.EnergyNetwork;
-import me.superckl.upm.network.member.WrappedNetworkMember;
 import me.superckl.upm.network.member.stack.NetworkItemStackHelper;
+import me.superckl.upm.network.member.wrapper.WrappedNetworkMember;
 import me.superckl.upm.packet.RequestUPMScanPacket;
 import me.superckl.upm.packet.UPMPacketHandler;
 import me.superckl.upm.util.NumberUtil;
@@ -178,10 +178,10 @@ public class NetworkMode extends UPMScreenMode{
 			final Collection<NetworkItemStackHelper> helpers = type2Helpers.get(member.getType());
 			boolean added = false;
 			for(final NetworkItemStackHelper helper:helpers)
-				if(helper.accepts(member) && helper.add(member, network.getLevel()))
+				if(helper.accepts(member) && helper.add(member))
 					added = true;
 			if(!added)
-				helpers.add(NetworkItemStackHelper.from(member, network.getLevel())
+				helpers.add(NetworkItemStackHelper.from(member)
 						.orElseThrow(() -> new IllegalStateException("Network member "+member+" could not be resolved to an item")));
 		});
 		type2Helpers.values().forEach(stack -> this.numBlocks += stack.toStacks().stream().mapToInt(ItemStack::getCount).sum());

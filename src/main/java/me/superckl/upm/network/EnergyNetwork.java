@@ -11,16 +11,17 @@ import lombok.RequiredArgsConstructor;
 import me.superckl.upm.LogHelper;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.api.MemberType;
-import me.superckl.upm.network.member.WrappedNetworkMember;
+import me.superckl.upm.network.member.wrapper.PhantomWrapper;
+import me.superckl.upm.network.member.wrapper.PositionBasedWrapper;
+import me.superckl.upm.network.member.wrapper.WrappedNetworkMember;
 import me.superckl.upm.util.NetworkUtil;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.INBTSerializable;
 
 @RequiredArgsConstructor
-public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
+public class EnergyNetwork{
 
 	public static final String MEMBERS_KEY = "members";
 	public static final String STORAGE_KEY = "storage";
@@ -36,12 +37,12 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 		return this.updateMembers(NetworkUtil.scan(this.upm));
 	}
 
-	protected boolean updateMembers(final List<WrappedNetworkMember> wrapped) {
+	protected boolean updateMembers(final List<? extends WrappedNetworkMember> wrapped) {
 		boolean changed;
 		if(this.networkCache == null)
 			changed = true;
 		else {
-			final List<WrappedNetworkMember> cachedMembers = this.networkCache.getMembers();
+			final List<? extends WrappedNetworkMember> cachedMembers = this.networkCache.getMembers();
 			changed = cachedMembers == null || wrapped.size() != cachedMembers.size();
 			if(!changed) {
 				//The lists are the same size, so check if they contain the same elements
@@ -128,19 +129,18 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 		this.networkCache.clientUpdate(storage, stored);
 	}
 
-	public List<WrappedNetworkMember> getMembers(){
+	public List<? extends WrappedNetworkMember> getMembers(){
 		if(this.networkCache == null)
 			return ImmutableList.of();
 		return ImmutableList.copyOf(this.networkCache.getMembers());
 	}
 
-	@Override
-	public CompoundNBT serializeNBT() {
+	public CompoundNBT serializeNBT(final boolean client) {
 		final CompoundNBT nbt = new CompoundNBT();
 		if(this.networkCache != null) {
 			final ListNBT list = new ListNBT();
 			this.networkCache.getMembers().forEach(member -> {
-				list.add(member.serialize());
+				list.add(member.serialize(client));
 			});
 			nbt.put(EnergyNetwork.MEMBERS_KEY, list);
 			final CompoundNBT storage = new CompoundNBT();
@@ -155,8 +155,7 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 		return nbt;
 	}
 
-	@Override
-	public void deserializeNBT(final CompoundNBT nbt) {
+	public void deserializeNBT(final CompoundNBT nbt, final boolean client) {
 		final List<WrappedNetworkMember> members = new ArrayList<>();
 		final Map<MemberType, Long> storage = new EnumMap<>(MemberType.class);
 		final Map<MemberType, Long> stored = new EnumMap<>(MemberType.class);
@@ -164,7 +163,8 @@ public class EnergyNetwork implements INBTSerializable<CompoundNBT>{
 			final ListNBT list = nbt.getList(EnergyNetwork.MEMBERS_KEY, Constants.NBT.TAG_COMPOUND);
 			list.forEach(inbt -> {
 				try {
-					members.add(WrappedNetworkMember.deserialize((CompoundNBT) inbt, this.upm.getLevel()));
+					members.add(client ? PhantomWrapper.deserialize((CompoundNBT) inbt)
+							:PositionBasedWrapper.deserialize((CompoundNBT) inbt));
 				} catch (final IllegalStateException e) {
 					LogHelper.error("Error deserializing network member!");
 					e.printStackTrace();

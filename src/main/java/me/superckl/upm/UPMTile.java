@@ -37,9 +37,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	public static final Set<UPMTile> LOADED_TILES = Collections.newSetFromMap(new IdentityHashMap<>());
-	public static BiFunction<UPMTile, CompoundNBT, Supplier<EnergyNetwork>> ENERGY_NETWORK_DESERIALIZER = (tile, nbt) -> () -> {
+	public static BiFunction<UPMTile, CompoundNBT, Supplier<EnergyNetwork>> SERVER_ENERGY_NETWORK_DESERIALIZER = (tile, nbt) -> () -> {
 		final EnergyNetwork network = new EnergyNetwork(tile);
-		network.deserializeNBT(nbt);
+		network.deserializeNBT(nbt, false);
+		return network;
+	};
+	public static BiFunction<UPMTile, CompoundNBT, Supplier<EnergyNetwork>> CLIENT_ENERGY_NETWORK_DESERIALIZER = (tile, nbt) -> () -> {
+		final EnergyNetwork network = new EnergyNetwork(tile);
+		network.deserializeNBT(nbt, true);
 		return network;
 	};
 
@@ -183,7 +188,10 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 
 	@Override
 	public CompoundNBT getUpdateTag() {
-		return this.save(new CompoundNBT());
+		this.serializingForClient = true;
+		final CompoundNBT nbt = this.save(new CompoundNBT());
+		this.serializingForClient = false;
+		return nbt;
 	}
 
 	@Override
@@ -211,7 +219,7 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			return null;
 		final CompoundNBT nbt = new CompoundNBT();
 		if(this.network != null)
-			nbt.put(UPMTile.NETWORK_KEY, this.network.serializeNBT());
+			nbt.put(UPMTile.NETWORK_KEY, this.network.serializeNBT(true));
 		nbt.putBoolean(UPMTile.SCAN_STATE_KEY, this.canScan());
 		return new SUpdateTileEntityPacket(this.worldPosition, -1, nbt);
 	}
@@ -222,17 +230,19 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 			return;
 		if(pkt.getTag().contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT networkNBT = pkt.getTag().getCompound(UPMTile.NETWORK_KEY);
-			this.networkSupplier = UPMTile.ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
+			this.networkSupplier = UPMTile.CLIENT_ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
 		}else
 			this.network = null;
 		this.clientScanState(pkt.getTag().getBoolean(UPMTile.SCAN_STATE_KEY));
 	}
 
+	private boolean serializingForClient = false;
+
 	@Override
 	public CompoundNBT save(final CompoundNBT nbt) {
 		final CompoundNBT data = new CompoundNBT();
 		if(this.network != null)
-			data.put(UPMTile.NETWORK_KEY, this.network.serializeNBT());
+			data.put(UPMTile.NETWORK_KEY, this.network.serializeNBT(this.serializingForClient));
 		if(!this.typeOverrides.isEmpty()) {
 			final CompoundNBT typeOverrides = new CompoundNBT();
 			this.typeOverrides.forEach((loc, type) -> typeOverrides.putString(loc.getRegistryName().toString(), type.name()));
@@ -249,7 +259,8 @@ public class UPMTile extends TileEntity implements ITickableTileEntity{
 		final CompoundNBT data = nbt.getCompound(UPMAPI.MOD_ID);
 		if(data.contains(UPMTile.NETWORK_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT networkNBT = data.getCompound(UPMTile.NETWORK_KEY);
-			this.networkSupplier = UPMTile.ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
+			this.networkSupplier = this.level != null && this.level.isClientSide ?
+					UPMTile.CLIENT_ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT):UPMTile.SERVER_ENERGY_NETWORK_DESERIALIZER.apply(this, networkNBT);
 		}
 		if(data.contains(UPMTile.TYPE_OVERRIDE_KEY, Constants.NBT.TAG_COMPOUND)) {
 			final CompoundNBT typeOverrides = data.getCompound(UPMTile.TYPE_OVERRIDE_KEY);

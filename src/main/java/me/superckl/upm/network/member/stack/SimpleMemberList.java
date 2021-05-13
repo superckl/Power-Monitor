@@ -10,10 +10,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import lombok.Getter;
-import me.superckl.upm.network.member.WrappedNetworkMember;
+import me.superckl.upm.network.member.wrapper.WrappedNetworkMember;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 
 public class SimpleMemberList extends NetworkItemStackHelper{
 
@@ -31,8 +30,8 @@ public class SimpleMemberList extends NetworkItemStackHelper{
 	}
 
 	@Override
-	public boolean add(final WrappedNetworkMember member, final World world) {
-		final Optional<SimpleMemberList> simple = SimpleMemberList.from(member, world).filter(list -> list.block == this.block);
+	public boolean add(final WrappedNetworkMember member) {
+		final Optional<SimpleMemberList> simple = SimpleMemberList.from(member).filter(list -> list.block == this.block);
 		if(simple.isPresent()) {
 			this.members.addAll(simple.get().members);
 			this.stacks = null;
@@ -44,13 +43,13 @@ public class SimpleMemberList extends NetworkItemStackHelper{
 	@Override
 	public List<ItemStack> toStacks() {
 		if(this.stacks == null)
-			this.stacks = ImmutableList.of(new ItemStack(this.block.asItem(), this.members.stream().mapToInt(member -> member.getPositions().size()).sum()));
+			this.stacks = ImmutableList.of(new ItemStack(this.block.asItem(), this.members.stream().mapToInt(member -> member.toBlocks().size()).sum()));
 		return this.stacks;
 	}
 
-	public static Optional<SimpleMemberList> from(final WrappedNetworkMember member, final World world) {
+	public static Optional<SimpleMemberList> from(final WrappedNetworkMember member) {
 		final Set<Block> blocks = Collections.newSetFromMap(new IdentityHashMap<>());
-		member.getPositions().keySet().forEach(pos -> blocks.add(world.getBlockState(pos).getBlock()));
+		member.toBlocks().forEach(blocks::add);
 		if(blocks.size() == 1)
 			return Optional.of(new SimpleMemberList(Iterables.getOnlyElement(blocks), member));
 		return Optional.empty();

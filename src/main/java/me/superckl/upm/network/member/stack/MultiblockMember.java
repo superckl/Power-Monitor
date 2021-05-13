@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -12,10 +11,9 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Reference2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntMaps;
-import me.superckl.upm.network.member.WrappedNetworkMember;
+import me.superckl.upm.network.member.wrapper.WrappedNetworkMember;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 
 public class MultiblockMember extends NetworkItemStackHelper{
 
@@ -31,8 +29,8 @@ public class MultiblockMember extends NetworkItemStackHelper{
 	}
 
 	@Override
-	public boolean add(final WrappedNetworkMember member, final World world) {
-		final List<Block> blocks = member.getPositions().keySet().stream().map(pos -> world.getBlockState(pos).getBlock()).collect(Collectors.toList());
+	public boolean add(final WrappedNetworkMember member) {
+		final Collection<Block> blocks = member.toBlocks();
 		if(blocks.stream().allMatch(this.blocks::containsKey)) {
 			blocks.forEach(block -> this.blocks.mergeInt(block, 1, Integer::sum));
 			this.members.add(member);
@@ -59,10 +57,10 @@ public class MultiblockMember extends NetworkItemStackHelper{
 		return ImmutableList.copyOf(this.members);
 	}
 
-	public static Optional<MultiblockMember> from(final WrappedNetworkMember member, final World world) {
+	public static Optional<MultiblockMember> from(final WrappedNetworkMember member) {
 		final Reference2IntMap<Block> blocks = new Reference2IntArrayMap<>();
-		member.getPositions().forEach((pos, dir) -> {
-			blocks.mergeInt(world.getBlockState(pos).getBlock(), 1, Integer::sum);
+		member.toBlocks().forEach(block -> {
+			blocks.mergeInt(block, 1, Integer::sum);
 		});
 		return Optional.of(new MultiblockMember(member, blocks));
 	}

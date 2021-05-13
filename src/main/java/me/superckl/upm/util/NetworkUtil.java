@@ -27,12 +27,13 @@ import lombok.RequiredArgsConstructor;
 import me.superckl.upm.UPMTile;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
-import me.superckl.upm.network.member.WrappedNetworkMember;
+import me.superckl.upm.network.member.wrapper.PositionBasedWrapper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
 
 public class NetworkUtil {
@@ -42,9 +43,12 @@ public class NetworkUtil {
 	 * @param upm The power monitor to start the search at
 	 * @return A list of wrapped network members representing the determined energy network
 	 */
-	public static List<WrappedNetworkMember> scan(final UPMTile upm) {
+	@SuppressWarnings("resource")
+	public static List<PositionBasedWrapper> scan(final UPMTile upm) {
+		if(upm.getLevel().isClientSide)
+			return Collections.emptyList();
 		//Map of found members and their positions. Multiple blocks may provide the same storage, hence Multimap
-		final List<WrappedNetworkMember> members = new ArrayList<>();
+		final List<PositionBasedWrapper> members = new ArrayList<>();
 
 		final TraversalTracker tracker = new TraversalTracker(upm.getTypeOverrides());
 
@@ -56,16 +60,16 @@ public class NetworkUtil {
 			toCheck.forEach((te, member) -> {
 				boolean found = false;
 				//Check if this member has already been found (shares storage with another member)
-				for(final WrappedNetworkMember existingMember:members)
+				for(final PositionBasedWrapper existingMember:members)
 					if(existingMember.getMember().isSameStorage(member.getLeft())) {
 						//Simply add this position to the wrapped member if it already exists
-						existingMember.addPosition(te.getBlockPos(), te.getType(), member.getRight());
+						existingMember.addPosition(PositionUtil.getGlobalPos(te), te.getType(), member.getRight());
 						found = true;
 					}
 				if(!found) {
 					//Create a new wrapped member if it doesn't already exist
-					final WrappedNetworkMember wrapped = new WrappedNetworkMember(member.getLeft(),
-							Util.make(new HashMap<>(), map -> map.put(te.getBlockPos(), member.getRight())),
+					final PositionBasedWrapper wrapped = new PositionBasedWrapper(member.getLeft(),
+							Util.make(new HashMap<>(), map -> map.put(PositionUtil.getGlobalPos(te), member.getRight())),
 							Lists.newArrayList(te.getType()));
 					tracker.typeOf(te).ifPresent(type -> wrapped.setType(type));
 					members.add(wrapped);
@@ -143,6 +147,8 @@ public class NetworkUtil {
 			final BlockPos pos, final NetworkMember originMember, final TraversalTracker tracker) {
 		//If we've already searched this position, skip it
 		if(!tracker.isInvalid(pos)) {
+			//If this position isn't loaded, there's not much we can do except skip it
+			//and mark it checked
 			if(!originTE.getLevel().isLoaded(pos)) {
 				tracker.invalidate(pos);
 				return;
@@ -169,12 +175,12 @@ public class NetworkUtil {
 	 * be empty when the method returns
 	 * @return The consolidated list of members
 	 */
-	public static List<WrappedNetworkMember> injectionConsolidate(final List<WrappedNetworkMember> members) {
-		final List<WrappedNetworkMember> consolidatedMembers = new ArrayList<>();
+	public static List<PositionBasedWrapper> injectionConsolidate(final List<PositionBasedWrapper> members) {
+		final List<PositionBasedWrapper> consolidatedMembers = new ArrayList<>();
 		//Continue looping while there are still unconsolidated members
 		while(!members.isEmpty()) {
 			//Get the member at the top of the list to inject into
-			final WrappedNetworkMember wrapped = members.remove(0);
+			final PositionBasedWrapper wrapped = members.remove(0);
 			//Check if this member is some form of integration that has handled consolidating members
 			if(wrapped.getMember().requiresInjectionCheck()) {
 				//Freeze the storage for the remaining members to check for changes
@@ -197,10 +203,10 @@ public class NetworkUtil {
 				}
 				if(removed != 0) {
 					//If the member changed, loop over the remaining members to check for changes
-					final Iterator<WrappedNetworkMember> it = members.iterator();
+					final Iterator<PositionBasedWrapper> it = members.iterator();
 					int i = 0;
 					while(it.hasNext()) {
-						final WrappedNetworkMember test = it.next();
+						final PositionBasedWrapper test = it.next();
 						if(test.getMember().getCurrentEnergy() != frozenStorage.getLong(i++)) {
 							//Looks like this changed and is thus "the same as" member, merge the members
 							//and remove test
@@ -229,11 +235,11 @@ public class NetworkUtil {
 	 * @return The network member and it's associated tile entities
 	 * @throws IllegalStateException
 	 */
-	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<BlockPos, Optional<Direction>> positions, final World level) throws IllegalStateException{
+	public static Pair<NetworkMember, List<TileEntityType<?>>> getMembers(final Map<GlobalPos, Optional<Direction>> positions) throws IllegalStateException{
 		NetworkMember member = null;
 		final List<TileEntityType<?>> types = new ArrayList<>();
-		for(final BlockPos pos:positions.keySet()){
-			final TileEntity te = level.getBlockEntity(pos);
+		for(final GlobalPos pos:positions.keySet()){
+			final TileEntity te = PositionUtil.getTileEntity(pos);
 			if(te == null)
 				throw new IllegalStateException("Error deserializing EnergyNetwork. TileEntity at "+pos+" is null!");
 			final NetworkMember intMember = NetworkMember.from(te, positions.get(pos).orElse(null)).orElseThrow(() ->
