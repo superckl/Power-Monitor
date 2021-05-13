@@ -196,6 +196,58 @@
     {
       "id": "cyclic:peat_generator",
       "required": false
+    },
+    {
+      "id": "simplegen:simple_soul",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_pink",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_nether",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_tnt",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_ender",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_culinary",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_combustion",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_xp",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_potion",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_statue",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_geothermal",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_fluid_combustion",
+      "required": false
+    },
+    {
+      "id": "simplegen:simple_turbine",
+      "required": false
     }
   ]
 }

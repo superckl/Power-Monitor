@@ -748,6 +748,22 @@
     {
       "id": "cyclic:anvil",
       "required": false
+    },
+    {
+      "id": "envirocore:lens_grinder",
+      "required": false
+    },
+    {
+      "id": "envirocore:memory_programmer",
+      "required": false
+    },
+    {
+      "id": "envirocore:assembler",
+      "required": false
+    },
+    {
+      "id": "envirocore:fe_input",
+      "required": false
     }
   ]
 }

@@ -38,7 +38,8 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			this.addIndustrialForegoing(builder, type);
 			this.addSilent(builder, type);
 			this.addCyclic(builder, type);
-
+			this.addSimpleGen(builder, type);
+			this.addEnvTech(builder, type);
 			//IE is handled in its integration because it has a lot and uses a resolver
 			//Mekanism is handled in its integration because it has an inane amount of tiles
 		}
@@ -272,6 +273,43 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			break;
 		case CABLE:
 			builder.addOptional(new ResourceLocation(name, "energy_pipe"));
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addSimpleGen(final Builder<TileEntityType<?>> builder, final MemberType type) {
+		final String name = "simplegen";
+		switch(type) {
+		case GENERATOR:
+			builder.addOptional(new ResourceLocation(name, "simple_soul"));
+			builder.addOptional(new ResourceLocation(name, "simple_pink"));
+			builder.addOptional(new ResourceLocation(name, "simple_nether"));
+			builder.addOptional(new ResourceLocation(name, "simple_tnt"));
+			builder.addOptional(new ResourceLocation(name, "simple_ender"));
+			builder.addOptional(new ResourceLocation(name, "simple_culinary"));
+			builder.addOptional(new ResourceLocation(name, "simple_combustion"));
+			builder.addOptional(new ResourceLocation(name, "simple_xp"));
+			builder.addOptional(new ResourceLocation(name, "simple_potion"));
+			builder.addOptional(new ResourceLocation(name, "simple_statue"));
+			builder.addOptional(new ResourceLocation(name, "simple_geothermal"));
+			builder.addOptional(new ResourceLocation(name, "simple_fluid_combustion"));
+			builder.addOptional(new ResourceLocation(name, "simple_turbine"));
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addEnvTech(final Builder<TileEntityType<?>> builder, final MemberType type) {
+		final String name = "envirocore";
+		switch(type) {
+		case MACHINE:
+			builder.addOptional(new ResourceLocation(name, "lens_grinder"));
+			builder.addOptional(new ResourceLocation(name, "memory_programmer"));
+			builder.addOptional(new ResourceLocation(name, "assembler"));
+			builder.addOptional(new ResourceLocation(name, "fe_input"));
 			break;
 		default:
 			break;
