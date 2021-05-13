@@ -84,6 +84,10 @@ dependencies {
     
     //Patchouli
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}")
+    
+    //Silent's Mechanisms
+    runtimeOnly fg.deobf("curse.maven:silentsmechanisms-326258:3272909")
+    runtimeOnly fg.deobf("curse.maven:silentlib-242998:3235738")
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

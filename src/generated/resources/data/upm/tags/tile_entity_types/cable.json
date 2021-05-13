@@ -64,6 +64,10 @@
     {
       "id": "powah:energy_hopper",
       "required": false
+    },
+    {
+      "id": "silents_mechanisms:wire",
+      "required": false
     }
   ]
 }

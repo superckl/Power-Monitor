@@ -180,6 +180,18 @@
     {
       "id": "industrialforegoing:bioreactor",
       "required": false
+    },
+    {
+      "id": "silents_mechanisms:coal_generator",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:diesel_generator",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:lava_generator",
+      "required": false
     }
   ]
 }

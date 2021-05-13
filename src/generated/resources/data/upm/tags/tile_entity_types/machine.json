@@ -612,6 +612,86 @@
     {
       "id": "industrialforegoing:fluid_laser_base",
       "required": false
+    },
+    {
+      "id": "industrialforegoing:dissolution_chamber",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:fluid_extractor",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:latex_processing_unit",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:enchantment_factory",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:infinity_charger",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:enchantment_sorter",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:enchantment_applicator",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:stasis_chamber",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:enchantment_extractor",
+      "required": false
+    },
+    {
+      "id": "industrialforegoing:mob_detector",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:basic_alloy_smelter",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:alloy_smelter",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:basic_crusher",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:crusher",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:compressor",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:electric_furnace",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:mixer",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:infuser",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:refinery",
+      "required": false
+    },
+    {
+      "id": "silents_mechanisms:solidifier",
+      "required": false
     }
   ]
 }

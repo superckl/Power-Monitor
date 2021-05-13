@@ -48,6 +48,10 @@
     {
       "id": "powah:ender_cell",
       "required": false
+    },
+    {
+      "id": "silents_mechanisms:battery_box",
+      "required": false
     }
   ]
 }

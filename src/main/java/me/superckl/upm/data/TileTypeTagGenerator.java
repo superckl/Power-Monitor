@@ -36,6 +36,7 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			this.addRFTools(builder, type);
 			//IF has a ton of machines but there's no good way to easily grab them from the mod source :/
 			this.addIndustrialForegoing(builder, type);
+			this.addSilent(builder, type);
 
 			//IE is handled in its integration because it has a lot and uses a resolver
 			//Mekanism is handled in its integration because it has an inane amount of tiles
@@ -196,10 +197,51 @@ public class TileTypeTagGenerator extends ForgeRegistryTagsProvider<TileEntityTy
 			builder.addOptional(new ResourceLocation(name, "dye_mixer"));
 			builder.addOptional(new ResourceLocation(name, "laser_drill"));
 			builder.addOptional(new ResourceLocation(name, "fluid_laser_base"));
+			builder.addOptional(new ResourceLocation(name, "dissolution_chamber"));
+			builder.addOptional(new ResourceLocation(name, "fluid_extractor"));
+			builder.addOptional(new ResourceLocation(name, "latex_processing_unit"));
+			builder.addOptional(new ResourceLocation(name, "enchantment_factory"));
+			builder.addOptional(new ResourceLocation(name, "infinity_charger"));
+			builder.addOptional(new ResourceLocation(name, "enchantment_sorter"));
+			builder.addOptional(new ResourceLocation(name, "enchantment_applicator"));
+			builder.addOptional(new ResourceLocation(name, "stasis_chamber"));
+			builder.addOptional(new ResourceLocation(name, "enchantment_extractor"));
+			builder.addOptional(new ResourceLocation(name, "mob_detector"));
 			break;
 		default:
 			break;
 
+		}
+	}
+
+	private void addSilent(final Builder<TileEntityType<?>> builder, final MemberType type) {
+		final String name = "silents_mechanisms";
+		switch(type) {
+		case MACHINE:
+			builder.addOptional(new ResourceLocation(name, "basic_alloy_smelter"));
+			builder.addOptional(new ResourceLocation(name, "alloy_smelter"));
+			builder.addOptional(new ResourceLocation(name, "basic_crusher"));
+			builder.addOptional(new ResourceLocation(name, "crusher"));
+			builder.addOptional(new ResourceLocation(name, "compressor"));
+			builder.addOptional(new ResourceLocation(name, "electric_furnace"));
+			builder.addOptional(new ResourceLocation(name, "mixer"));
+			builder.addOptional(new ResourceLocation(name, "infuser"));
+			builder.addOptional(new ResourceLocation(name, "refinery"));
+			builder.addOptional(new ResourceLocation(name, "solidifier"));
+			break;
+		case STORAGE:
+			builder.addOptional(new ResourceLocation(name, "battery_box"));
+			break;
+		case GENERATOR:
+			builder.addOptional(new ResourceLocation(name, "coal_generator"));
+			builder.addOptional(new ResourceLocation(name, "diesel_generator"));
+			builder.addOptional(new ResourceLocation(name, "lava_generator"));
+			break;
+		case CABLE:
+			builder.addOptional(new ResourceLocation(name, "wire"));
+			break;
+		default:
+			break;
 		}
 	}
 
