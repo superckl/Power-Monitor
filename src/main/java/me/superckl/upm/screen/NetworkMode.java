@@ -72,6 +72,9 @@ public class NetworkMode extends UPMScreenMode{
 	private final IFormattableTextComponent multipleTypesText = new TranslationTextComponent(Util.makeDescriptionId("gui",
 			new ResourceLocation(UPMAPI.MOD_ID, "multiple_blocks"))).withStyle(TextFormatting.RED);
 
+	private static final IFormattableTextComponent clickToCycleText = new TranslationTextComponent(Util.makeDescriptionId("gui",
+			new ResourceLocation(UPMAPI.MOD_ID, "click_cycle"))).withStyle(TextFormatting.GRAY);
+
 	private final Inventory slotInv = new Inventory(9*3);
 	private Multimap<MemberType, NetworkItemStackHelper> typeToHelpers;
 	private List<NetworkItemStackHelper> slotToHelpers;
@@ -441,6 +444,7 @@ public class NetworkMode extends UPMScreenMode{
 				tooltip.add(this.multipleTypesText);
 			if(((NetworkBlockSlot)slot).isTypeChanged())
 				tooltip.add(NetworkMode.rescanSaveText);
+			tooltip.add(NetworkMode.clickToCycleText);
 			if(this.screen.getMinecraft().options.advancedItemTooltips) {
 				final Set<TileEntityType<?>> tileTypes = Collections.newSetFromMap(new IdentityHashMap<>());
 				((NetworkBlockSlot)slot).member.getMembers().forEach(wrapped -> tileTypes.addAll(wrapped.getTileTypes()));
