@@ -143,6 +143,10 @@ public class NetworkUtil {
 			final BlockPos pos, final NetworkMember originMember, final TraversalTracker tracker) {
 		//If we've already searched this position, skip it
 		if(!tracker.isInvalid(pos)) {
+			if(!originTE.getLevel().isLoaded(pos)) {
+				tracker.invalidate(pos);
+				return;
+			}
 			final TileEntity te = originTE.getLevel().getBlockEntity(pos);
 			final Optional<Direction> dirOpt = Optional.ofNullable(dir);
 			//get the network member, and is present, make sure it connects to the originating member
