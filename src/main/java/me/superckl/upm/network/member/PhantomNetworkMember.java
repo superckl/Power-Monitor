@@ -5,7 +5,7 @@ import java.util.Set;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 
 /**
  * This class is used on the client as a placeholder in wrapped members.
@@ -48,7 +48,7 @@ public class PhantomNetworkMember extends NetworkMember{
 	}
 
 	@Override
-	public Set<BlockPos> getConnections() {
+	public Set<GlobalPos> getConnections() {
 		throw this.err();
 	}
 

@@ -105,14 +105,14 @@ public class NetworkUtil {
 		//A map keeping track of the network members in each direction for this tile entity
 		final Map<Direction, NetworkMember> originMembers = new EnumMap<>(Direction.class);
 		//A map of "extra" connected positions that are exposed by the network member
-		final Multimap<Direction, BlockPos> positions = MultimapBuilder.enumKeys(Direction.class).hashSetValues().build();
+		final Multimap<Direction, GlobalPos> positions = MultimapBuilder.enumKeys(Direction.class).hashSetValues().build();
 		for(final Direction dir:dirs)
 			NetworkMember.from(originTE, dir).ifPresent(member -> {
 				originMembers.put(dir, member);
 				positions.putAll(dir, member.getConnections());
 			});
 		//Grab any positions that don't have an associated direction
-		final Optional<Pair<NetworkMember, Set<BlockPos>>> noDirs = NetworkMember.from(originTE, null).map(member ->
+		final Optional<Pair<NetworkMember, Set<GlobalPos>>> noDirs = NetworkMember.from(originTE, null).map(member ->
 		Pair.of(member, member.getConnections()));
 		//Remove those that already have a direction
 		noDirs.ifPresent(pair -> pair.getValue().removeAll(positions.values()));
@@ -120,7 +120,7 @@ public class NetworkUtil {
 		final Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> members = Maps.newIdentityHashMap();
 		//For all of the potential connected members, check they are connected
 		for(final Direction dir:originMembers.keySet()) {
-			final BlockPos neighborPos = pos.relative(dir);
+			final GlobalPos neighborPos = GlobalPos.of(level.dimension(), pos.relative(dir));
 			NetworkUtil.checkConnectedMember(originTE, dir, members, neighborPos, originMembers.get(dir), tracker);
 		}
 		positions.forEach((dir, connectedPos) -> {
@@ -139,21 +139,21 @@ public class NetworkUtil {
 	 * @param originTE the originating tile entity
 	 * @param dir The direction from the originating tile entity
 	 * @param members A map of all discovered members to which the connected member will be added
-	 * @param pos The position of the member to check
+	 * @param connectedPos The position of the member to check
 	 * @param originMember The originating network member
 	 * @param tracker The traversal tracker for the current network search
 	 */
 	private static void checkConnectedMember(final TileEntity originTE, final Direction dir, final Map<TileEntity, Pair<NetworkMember, Optional<Direction>>> members,
-			final BlockPos pos, final NetworkMember originMember, final TraversalTracker tracker) {
+			final GlobalPos connectedPos, final NetworkMember originMember, final TraversalTracker tracker) {
 		//If we've already searched this position, skip it
-		if(!tracker.isInvalid(pos)) {
+		if(!tracker.isInvalid(connectedPos)) {
 			//If this position isn't loaded, there's not much we can do except skip it
 			//and mark it checked
-			if(!originTE.getLevel().isLoaded(pos)) {
-				tracker.invalidate(pos);
+			if(!PositionUtil.isLoaded(connectedPos)) {
+				tracker.invalidate(connectedPos);
 				return;
 			}
-			final TileEntity te = originTE.getLevel().getBlockEntity(pos);
+			final TileEntity te = PositionUtil.getTileEntity(connectedPos);
 			final Optional<Direction> dirOpt = Optional.ofNullable(dir);
 			//get the network member, and is present, make sure it connects to the originating member
 			NetworkMember.from(te, dirOpt.map(Direction::getOpposite).orElse(null)).filter(member ->
@@ -161,7 +161,7 @@ public class NetworkUtil {
 			.ifPresent(member -> {
 				//Add it to members and mark this position as checked
 				members.put(te, Pair.of(member, dirOpt.map(Direction::getOpposite)));
-				tracker.invalidate(pos);
+				tracker.invalidate(connectedPos);
 			});
 		}
 	}
@@ -255,15 +255,15 @@ public class NetworkUtil {
 	@RequiredArgsConstructor
 	public static class TraversalTracker{
 
-		private final Set<BlockPos> invalid = new HashSet<>();
+		private final Set<GlobalPos> invalid = new HashSet<>();
 
 		private final Map<TileEntityType<?>, MemberType> typeOverrides;
 
-		public boolean invalidate(final BlockPos pos) {
+		public boolean invalidate(final GlobalPos pos) {
 			return this.invalid.add(pos);
 		}
 
-		public boolean isInvalid(final BlockPos pos) {
+		public boolean isInvalid(final GlobalPos pos) {
 			return this.invalid.contains(pos);
 		}
 

@@ -11,9 +11,11 @@ import blusunrize.immersiveengineering.api.wires.LocalWireNetwork;
 import me.superckl.upm.api.MemberType;
 import me.superckl.upm.api.NetworkMember;
 import me.superckl.upm.api.NetworkMemberResolver;
+import me.superckl.upm.util.PositionUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 
 public class IEFluxNetworkMember extends NetworkMember{
 
@@ -61,13 +63,14 @@ public class IEFluxNetworkMember extends NetworkMember{
 	}
 
 	@Override
-	public Set<BlockPos> getConnections() {
+	public Set<GlobalPos> getConnections() {
 		final LocalWireNetwork network = GlobalWireNetwork.getNetwork(this.tileEntity.get().getLevel()).getNullableLocalNet(this.tileEntity.get().getBlockPos());
 		if(network != null) {
-			final Set<BlockPos> positions = Sets.newHashSet(this.tileEntity.get().getBlockPos());
+			final TileEntity tile = this.tileEntity.get();
+			final Set<GlobalPos> positions = Sets.newHashSet(PositionUtil.getGlobalPos(tile));
 			this.wrapper.connections(network).forEach(conn -> {
-				positions.add(conn.getEndA().getPosition());
-				positions.add(conn.getEndB().getPosition());
+				positions.add(GlobalPos.of(tile.getLevel().dimension(), conn.getEndA().getPosition()));
+				positions.add(GlobalPos.of(tile.getLevel().dimension(), conn.getEndB().getPosition()));
 			});
 			return positions;
 		}
